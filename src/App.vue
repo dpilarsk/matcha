@@ -1,91 +1,121 @@
 <template>
-  <v-app>
-    <v-navigation-drawer
-      persistent
-      :mini-variant="miniVariant"
-      :clipped="clipped"
-      v-model="drawer"
-      enable-resize-watcher
-      fixed
-      app
-    >
-      <v-list>
-        <v-list-tile
-          value="true"
-          v-for="(item, i) in items"
-          :key="i"
-        >
-          <v-list-tile-action>
-            <v-icon v-html="item.icon"></v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title v-text="item.title"></v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-      </v-list>
-    </v-navigation-drawer>
-    <v-toolbar
-      app
-      :clipped-left="clipped"
-    >
-      <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-      <v-btn icon @click.stop="miniVariant = !miniVariant">
-        <v-icon v-html="miniVariant ? 'chevron_right' : 'chevron_left'"></v-icon>
-      </v-btn>
-      <v-btn icon @click.stop="clipped = !clipped">
-        <v-icon>web</v-icon>
-      </v-btn>
-      <v-btn icon @click.stop="fixed = !fixed">
-        <v-icon>remove</v-icon>
-      </v-btn>
-      <v-toolbar-title v-text="title"></v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn icon @click.stop="rightDrawer = !rightDrawer">
-        <v-icon>menu</v-icon>
-      </v-btn>
-    </v-toolbar>
-    <v-content>
-      <router-view/>
-    </v-content>
-    <v-navigation-drawer
-      temporary
-      :right="right"
-      v-model="rightDrawer"
-      fixed
-      app
-    >
-      <v-list>
-        <v-list-tile @click="right = !right">
-          <v-list-tile-action>
-            <v-icon>compare_arrows</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-title>Switch drawer (click me)</v-list-tile-title>
-        </v-list-tile>
-      </v-list>
-    </v-navigation-drawer>
-    <v-footer :fixed="fixed" app>
-      <span>&copy; 2017</span>
-    </v-footer>
-  </v-app>
+	<v-app dark>
+		<v-navigation-drawer
+			fixed
+			:clipped="$vuetify.breakpoint.width > 1264"
+			v-model="drawer"
+			class="light-green accent-4"
+			app
+		>
+			<v-list>
+				<router-link :to="{name: 'Home'}" exact tag="v-list-tile">
+					<v-list-tile-action>
+						<v-icon>home</v-icon>
+					</v-list-tile-action>
+					<v-list-tile-content>
+						<v-list-tile-title>Accueil</v-list-tile-title>
+					</v-list-tile-content>
+				</router-link>
+
+				<router-link :to="{name: 'Register'}" exact tag="v-list-tile">
+					<v-list-tile-action>
+						<v-icon>account_circle</v-icon>
+					</v-list-tile-action>
+					<v-list-tile-content>
+						<v-list-tile-title>Inscription</v-list-tile-title>
+					</v-list-tile-content>
+				</router-link>
+
+				<router-link :to="{name: 'Users'}" exact tag="v-list-tile">
+					<v-list-tile-action>
+						<v-icon>lock_open</v-icon>
+					</v-list-tile-action>
+					<v-list-tile-content>
+						<v-list-tile-title>Users</v-list-tile-title>
+					</v-list-tile-content>
+				</router-link>
+
+				<v-subheader>
+					Mon compte
+				</v-subheader>
+				<v-list-tile
+					v-for="(item, i) in items2"
+					@click=""
+					:key="i + '__account'"
+				>
+					<v-list-tile-action>
+						<v-icon v-html="item.icon"></v-icon>
+					</v-list-tile-action>
+					<v-list-tile-content>
+						<v-list-tile-title v-text="item.title"></v-list-tile-title>
+					</v-list-tile-content>
+				</v-list-tile>
+				<v-subheader>
+					Mes messages
+				</v-subheader>
+				<v-list-tile
+					v-for="(message, i) in messages"
+					@click=""
+					:key="i + '__messages'"
+				>
+					<v-list-tile-action>
+						<v-list-tile-avatar>
+							<img v-bind:src="message.avatar">
+						</v-list-tile-avatar>
+					</v-list-tile-action>
+					<v-list-tile-content>
+						<v-list-tile-title v-text="message.name"></v-list-tile-title>
+						<v-list-tile-sub-title v-text="message.message"></v-list-tile-sub-title>
+					</v-list-tile-content>
+				</v-list-tile>
+
+			</v-list>
+		</v-navigation-drawer>
+		<v-toolbar fixed app :clipped-left="clipped">
+			<v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+			<v-toolbar-title v-text="title"></v-toolbar-title>
+			<v-spacer></v-spacer>
+		</v-toolbar>
+		<v-content dark>
+			<v-container fluid>
+				<v-slide-y-transition mode="out-in">
+					<v-layout row wrap>
+						<router-view></router-view>
+					</v-layout>
+				</v-slide-y-transition>
+			</v-container>
+		</v-content>
+		<v-footer app>
+			<span>&copy; dpilarsk 2018</span>
+		</v-footer>
+	</v-app>
 </template>
 
 <script>
-export default {
-  data () {
-    return {
-      clipped: false,
-      drawer: true,
-      fixed: false,
-      items: [{
-        icon: 'bubble_chart',
-        title: 'Inspire'
-      }],
-      miniVariant: false,
-      right: true,
-      rightDrawer: false,
-      title: 'Vuetify.js'
-    }
-  },
-  name: 'App'
-}
+	export default {
+		name: 'app',
+		data () {
+			return {
+				clipped: true,
+				fixed: false,
+				drawer: null,
+				items: [
+					{ icon: 'home', title: 'Accueil' },
+					{ icon: 'lock_open', title: 'Connexion' },
+					{ icon: 'account_circle', title: 'Inscription' }
+				],
+				items2: [
+					{ icon: 'info', title: 'Mes Informations' },
+					{ icon: 'settings', title: 'Mes Préférences' }
+				],
+				messages: [
+					{ avatar: 'https://thumb1.shutterstock.com/display_pic_with_logo/3900026/426321556/stock-vector-vector-male-face-avatar-logo-template-pictogram-button-round-trendy-flat-icon-with-man-for-426321556.jpg', name: 'John Doe', message: 'Test' },
+					{ avatar: 'https://thumb1.shutterstock.com/display_pic_with_logo/3900026/426321556/stock-vector-vector-male-face-avatar-logo-template-pictogram-button-round-trendy-flat-icon-with-man-for-426321556.jpg', name: 'John dsDoe', message: 'Tesadsadst' },
+					{ avatar: 'https://thumb1.shutterstock.com/display_pic_with_logo/3900026/426321556/stock-vector-vector-male-face-avatar-logo-template-pictogram-button-round-trendy-flat-icon-with-man-for-426321556.jpg', name: 'John Doe', message: 'Tesadsadst' },
+					{ avatar: 'https://thumb1.shutterstock.com/display_pic_with_logo/3900026/426321556/stock-vector-vector-male-face-avatar-logo-template-pictogram-button-round-trendy-flat-icon-with-man-for-426321556.jpg', name: 'John Doe', message: 'Tesadsadst' }
+				],
+				title: 'Matcha'
+			}
+		}
+	}
 </script>
