@@ -1,7 +1,7 @@
 const	express =	require('express'),
 	app		=	express(),
 	path	=	require('path'),
-	users	=	require(path.join(__dirname, '/routes/users.js')),
+	users	=	require(path.join(__dirname, '/routes/user.js')),
 	message	=	require(path.join(__dirname, '/resources/utils.js')),
 	bodyParser = require('body-parser'),
 	port	=	process.env.PORT || 8080

@@ -99,15 +99,14 @@ exports.index	=	(req, res) => {
 }
 
 exports.create	=	(req, res) => {
-	if (!req.body[0] || !req.body['0'].first_name || !req.body['0'].last_name
-		|| !req.body['0'].username ||(!req.body['0'].email ||
-			(req.body[0].email.match('^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$') === null)) || (!req.body['0'].age || req.body['0'].age < 18 || req.body['0'].age > 99)
-		|| !req.body['0'].gender || !req.body['0'].orientation || !req.body['0'].currentLat
-		|| (!req.body[0].password || (req.body[0].password).match('^(?=.*[A-Z])(?=.*\\d)(?=.*[$@$!%*?&])[A-Za-z\\d$@$!%*?&]') === null) || !req.body['0'].currentLon)
+	if (!req.body[0] || !req.body[0].first_name || !req.body[0].last_name
+		|| !req.body[0].username ||(!req.body[0].email || (req.body[0].email.match('^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$') === null)) || (!req.body[0].age || req.body[0].age < 18 || req.body[0].age > 99)
+		|| !req.body[0].gender || !req.body[0].orientation || !req.body[0].currentLat
+		|| (!req.body[0].password || (req.body[0].password).match('^(?=.*[A-Z])(?=.*\\d)(?=.*[$@$!%*?&])[A-Za-z\\d$@$!%*?&]') === null) || !req.body[0].currentLon)
 		res.json({'status': 0, type: 'error', 'message': 'Un des champs est manquant ou erroné.'})
 	else
 		connectionPromise.then(() => {
-			connection.query('SELECT username, email FROM user WHERE username = ? OR email = ?', [req.body['0'].username, req.body['0'].email], (err, response) => {
+			connection.query('SELECT username, email FROM user WHERE username = ? OR email = ?', [req.body[0].username, req.body[0].email], (err, response) => {
 				if (err)
 				{
 					message.error(err)
@@ -118,12 +117,12 @@ exports.create	=	(req, res) => {
 				else
 				{
 					bcrypt.genSalt(10, function(err, salt) {
-						bcrypt.hash(req.body['0'].password, salt, function(err, hash) {
-							bcrypt.hash(Date.now() + req.body['0'].username, 10, function(err, token) {
+						bcrypt.hash(req.body[0].password, salt, function(err, hash) {
+							bcrypt.hash(Date.now() + req.body[0].username, 10, function(err, token) {
 								let pass = hash
 								connection.query('INSERT INTO user (first_name, last_name, username, email, password, age, gender, sexual_orientation, latitude, longitude, token) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-									[req.body['0'].first_name, req.body['0'].last_name, req.body['0'].username, req.body['0'].email, pass, req.body['0'].age, req.body['0'].gender, req.body['0'].orientation, req.body['0'].currentLat,
-										req.body['0'].currentLon, token], (err, result) => {
+									[req.body[0].first_name, req.body[0].last_name, req.body[0].username, req.body[0].email, pass, req.body[0].age, req.body[0].gender, req.body[0].orientation, req.body[0].currentLat,
+										req.body[0].currentLon, token], (err, result) => {
 										if (err)
 										{
 											message.error(err)
@@ -133,7 +132,7 @@ exports.create	=	(req, res) => {
 										{
 											let mail = {
 												from: 'meeting@matcha.fr',
-												to: req.body['0'].email,
+												to: req.body[0].email,
 												subject: 'Confirmer votre compte sur Matcha !',
 												text: 'Bonjour, merci de vous être inscrit sur Matcha.fr. Voici votre lien de confirmation: <lien>.'
 											}
@@ -155,7 +154,7 @@ exports.create	=	(req, res) => {
 			})
 		})
 			.catch(err => {
-				message.error('Connexion au serveur MySQL échouée:\n'' + err)
+				message.error('Connexion au serveur MySQL échouée:\n' + err)
 				res.json({'status': 0})
 			})
 }
@@ -175,7 +174,7 @@ exports.login	=	(req, res) => {
 					res.json({'status': 0, type: 'error', 'message': 'Votre compte est introuvable !'})
 				else
 				{
-					bcrypt.compare(req.body['0'].password, result[0].password, (err, res1) => {
+					bcrypt.compare(req.body[0].password, result[0].password, (err, res1) => {
 						if (!res1)
 							res.json({'status': 0, type: 'error', 'message': 'Le mot de passe est incorrect.'})
 						else
