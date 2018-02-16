@@ -20,7 +20,10 @@
     "mysql2": "^1.5.2",
     "nodemailer": "^4.4.2",
     "vue": "^2.5.2",
+    "vue-ls": "^2.3.3",
+    "vue-resource": "^1.3.6",
     "vue-router": "^3.0.1",
+    "vuejs-jwt": "^1.0.0",
     "vuetify": "^1.0.0"
   },
   "devDependencies": {
