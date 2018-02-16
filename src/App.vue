@@ -17,23 +17,25 @@
 					</v-list-tile-content>
 				</router-link>
 
-				<router-link :to="{name: 'Register'}" exact tag="v-list-tile">
-					<v-list-tile-action>
-						<v-icon>account_circle</v-icon>
-					</v-list-tile-action>
-					<v-list-tile-content>
-						<v-list-tile-title>Inscription</v-list-tile-title>
-					</v-list-tile-content>
-				</router-link>
+				<div v-if="!this.store.state.logged">
+					<router-link :to="{name: 'Register'}" exact tag="v-list-tile">
+						<v-list-tile-action>
+							<v-icon>account_circle</v-icon>
+						</v-list-tile-action>
+						<v-list-tile-content>
+							<v-list-tile-title>Inscription</v-list-tile-title>
+						</v-list-tile-content>
+					</router-link>
 
-				<router-link :to="{name: 'HelloWorld'}" exact tag="v-list-tile">
-					<v-list-tile-action>
-						<v-icon>lock_open</v-icon>
-					</v-list-tile-action>
-					<v-list-tile-content>
-						<v-list-tile-title>Users</v-list-tile-title>
-					</v-list-tile-content>
-				</router-link>
+					<router-link :to="{name: 'HelloWorld'}" exact tag="v-list-tile">
+						<v-list-tile-action>
+							<v-icon>lock_open</v-icon>
+						</v-list-tile-action>
+						<v-list-tile-content>
+							<v-list-tile-title>Users</v-list-tile-title>
+						</v-list-tile-content>
+					</router-link>
+				</div>
 
 				<v-subheader>
 					Mon compte
@@ -92,10 +94,13 @@
 </template>
 
 <script>
+	import store from './store/UsersStore.js'
+	import { mapGetters } from 'vuex'
 	export default {
 		name: 'app',
 		data () {
 			return {
+				store: store,
 				clipped: true,
 				fixed: false,
 				drawer: null,
@@ -116,6 +121,11 @@
 				],
 				title: 'Matcha'
 			}
+		},
+		computed: {
+			...mapGetters({
+				getLogged: 'logged'
+			})
 		}
 	}
 </script>
