@@ -1,0 +1,223 @@
+<template>
+	<v-layout row wrap>
+		<v-alert
+			:color="alert.type"
+			transition="scale-transition"
+			dismissible
+			v-model="alert.visible"
+		>
+			{{ alert.message }}
+		</v-alert>
+		<v-flex xs12>
+			<v-form v-model="valid">
+				<v-layout row wrap>
+					<v-flex xs12 sm6 md6>
+						<v-text-field
+							label="Prénom"
+							v-model="user.first_name"
+							:rules="nameRules"
+							required></v-text-field>
+					</v-flex>
+					<v-flex xs12 sm6 md6>
+						<v-text-field
+							label="Nom"
+							v-model="user.last_name"
+							:rules="nameRules"
+							required></v-text-field>
+					</v-flex>
+				</v-layout>
+				<v-layout row wrap>
+					<v-flex xs12 sm6 md6>
+						<v-text-field
+							label="Nom d'utilisateur"
+							v-model="user.username"
+							:rules="usernameRules"
+							:counter="12"
+							required></v-text-field>
+					</v-flex>
+					<v-flex xs12 sm6 md6>
+						<v-text-field
+							label="Adresse E-mail"
+							v-model="user.email"
+							:rules="emailRules"
+							type="email"
+							required></v-text-field>
+					</v-flex>
+				</v-layout>
+				<v-layout row wrap>
+					<v-flex xs6 sm4 md4>
+						<v-text-field
+							label="Age"
+							v-model="user.age"
+							:rules="ageRules"
+							type="number"
+							required></v-text-field>
+					</v-flex>
+					<v-flex xs6 sm4 md4>
+						<v-select
+							:items="gender"
+							v-model="user.gender"
+							label="Votre sexe ?"
+							signel-line
+							:rules="genderRules"
+							bottom
+							required></v-select>
+					</v-flex>
+					<v-flex xs12 sm4 md4>
+						<v-select
+							:items="orientation"
+							v-model="user.orientation"
+							label="Votre orientation sexuelle ?"
+							signel-line
+							:rules="orientationRules"
+							bottom
+							required></v-select>
+					</v-flex>
+				</v-layout>
+				<v-layout row wrap>
+					<v-flex xs12 sm6 md6>
+						<v-text-field
+							label="Mot de passe"
+							v-model="user.password"
+							:rules="passwordRules"
+							hint="Au moins 8 caractères (1 majuscule, 1 minuscule, 1 chiffre, 1 caractère spécial)."
+							min="8"
+							type="password"
+							required></v-text-field>
+					</v-flex>
+					<v-flex xs12 sm6 md6>
+						<v-text-field
+							label="Confirmation du mot de passe"
+							v-model="user.passwordConfirm"
+							:rules="passwordConfirmRules"
+							min="8"
+							type="password"
+							required></v-text-field>
+					</v-flex>
+				</v-layout>
+				<v-btn ref="submit" block @click="submit" :disabled="!valid">S'inscrire</v-btn>
+			</v-form>
+		</v-flex>
+	</v-layout>
+</template>
+
+<script>
+	export default {
+		name: 'register',
+		data () {
+			return {
+				alert: {
+					visible: false,
+					message: null,
+					type: null
+				},
+				valid: false,
+				gender: [
+					{
+						value: 'man',
+						text: 'Homme'
+					},
+					{
+						value: 'woman',
+						text: 'Femme'
+					}
+				],
+				orientation: [
+					{
+						value: 'heterosexual',
+						text: 'Hétérosexuel(le)'
+					},
+					{
+						value: 'homosexual',
+						text: 'Homosexuel(le)'
+					},
+					{
+						value: 'bisexual',
+						text: 'Bisexuel(le)'
+					}
+				],
+				user: {
+					first_name: '',
+					last_name: '',
+					username: '',
+					email: '',
+					age: 18,
+					password: '',
+					passwordConfirm: '',
+					currentLat: null,
+					currentLon: null,
+					gender: null,
+					orientation: null
+				},
+				nameRules: [
+					v => !!v || 'Ce champ est requis.'
+				],
+				usernameRules: [
+					v => !!v || 'Un nom d\'utilisateur est requis.',
+					v => v.length >= 3 || 'Votre nom d\'utilisateur doit comporter au moins 3 caractères.',
+					v => v.length <= 12 || 'Votre nom d\'utilisateur ne doit pas comporter plus de 12 caractères.'
+				],
+				emailRules: [
+					v => !!v || 'Votre email est requis.',
+					v => v.match('^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$') !== null || 'Votre adresse email est invalide.'
+				],
+				ageRules: [
+					v => !!v || 'Votre age est requis',
+					v => v >= 18 || 'Vous devez avoir au moins 18 ans pour vous inscrire.',
+					v => v <= 99 || 'Vous ne devez pas avoir plus de 99 ans pour vous inscrire.'
+				],
+				genderRules: [
+					v => !!v || 'Votre sexe est requis.'
+				],
+				orientationRules: [
+					v => !!v || 'Votre orientation sexuelle est requise.'
+				],
+				passwordRules: [
+					v => !!v || 'Un mot de passe est requis.',
+					v => v.length >= 8 || 'Votre mot de passe doit faire au moins 8 caractères.',
+					v => v.match('^(?=.*[A-Z])(?=.*\\d)(?=.*[$@$!%*?&])[A-Za-z\\d$@$!%*?&]') !== null || 'Votre mot de passe ne respecte pas le minimum recommandé.'
+				],
+				passwordConfirmRules: [
+					v => !!v || 'La confirmation de votre mot de passe est nécessaire.',
+					v => v === this.user.password || 'Vos mots de passe ne correspondent pas.'
+				]
+			}
+		},
+		mounted () {
+			let _this = this
+			if (this.valid) this.valid = false
+			navigator.geolocation.watchPosition(pos => {
+				_this.user.currentLat = pos.coords.latitude
+				_this.user.currentLon = pos.coords.longitude
+			}, e => {
+				_this.$http.get('//freegeoip.net/json/?callback=').then(response => {
+					_this.user.currentLat = response.body.latitude
+					_this.user.currentLon = response.body.longitude
+				}, response => {
+					console.error("Impossible de géolocaliser l'utilisateur.")
+				})
+			})
+		},
+		methods: {
+			submit () {
+				let _this = this
+				this.$http.post('http://localhost:8081/api/users', [this.user], {
+					progress (e) {
+						_this.$refs['submit'].$options.propsData['disabled'] = true
+						_this.$refs['submit'].$el.innerHTML = '<div class="progress-circular progress-circular--indeterminate primary--text" style="height: 32px; width: 32px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="25 25 50 50" style="transform: rotate(0deg);"><circle fill="transparent" cx="50" cy="50" r="20" stroke-width="4" stroke-dasharray="125.664" stroke-dashoffset="125.66370614359172px" class="progress-circular__overlay"></circle></svg><div class="progress-circular__info"></div></div>'
+					}
+				}).then(response => {
+					this.$refs['submit'].$el.innerHTML = 'S\'inscrire'
+					this.alert.message = response.body.message
+					this.alert.type = response.body.type
+					this.alert.visible = true
+				}, response => {
+					this.$refs['submit'].$el.innerHTML = 'S\'inscrire'
+					this.alert.message = 'Impossible de vous inscrire. Une erreur est survenue.'
+					this.alert.type = 'error'
+					this.alert.visible = true
+				})
+			}
+		}
+	}
+</script>

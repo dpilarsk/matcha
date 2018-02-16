@@ -3,8 +3,15 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import VueResource from 'vue-resource'
+import VueLocalStorage from 'vue-ls'
+import VueJWT from 'vuejs-jwt'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
+
+let options = {
+	namespace: 'matcha__'
+}
 
 Vue.use(Vuetify, { theme: {
 	primary: '#ee44aa',
@@ -15,6 +22,9 @@ Vue.use(Vuetify, { theme: {
 	success: '#4CAF50',
 	warning: '#FFC107'
 }})
+Vue.use(VueLocalStorage, options)
+Vue.use(VueJWT, {signKey: 'demo', keyName: 'matcha__token'})
+Vue.use(VueResource)
 
 Vue.config.productionTip = false
 
