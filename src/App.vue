@@ -8,7 +8,7 @@
 			app
 		>
 			<v-list>
-				<router-link :to="{name: 'Home'}" exact tag="v-list-tile">
+				<router-link :to="{name: 'HelloWorld'}" exact tag="v-list-tile">
 					<v-list-tile-action>
 						<v-icon>home</v-icon>
 					</v-list-tile-action>
@@ -26,7 +26,7 @@
 					</v-list-tile-content>
 				</router-link>
 
-				<router-link :to="{name: 'Users'}" exact tag="v-list-tile">
+				<router-link :to="{name: 'HelloWorld'}" exact tag="v-list-tile">
 					<v-list-tile-action>
 						<v-icon>lock_open</v-icon>
 					</v-list-tile-action>
