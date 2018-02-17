@@ -101,8 +101,8 @@ exports.index	=	(req, res) => {
 exports.create	=	(req, res) => {
 	if (!req.body[0] || !req.body[0].first_name || !req.body[0].last_name
 		|| !req.body[0].username ||(!req.body[0].email || (req.body[0].email.match('^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$') === null)) || (!req.body[0].age || req.body[0].age < 18 || req.body[0].age > 99)
-		|| !req.body[0].gender || !req.body[0].orientation || !req.body[0].currentLat
-		|| (!req.body[0].password || (req.body[0].password).match('^(?=.*[A-Z])(?=.*\\d)(?=.*[$@$!%*?&])[A-Za-z\\d$@$!%*?&]') === null) || !req.body[0].currentLon)
+		|| !req.body[0].gender || !req.body[0].orientation
+		|| (!req.body[0].password || (req.body[0].password).match('^(?=.*[A-Z])(?=.*\\d)(?=.*[$@$!%*?&])[A-Za-z\\d$@$!%*?&]') === null))
 		res.json({'status': 0, type: 'error', 'message': 'Un des champs est manquant ou erroné.'})
 	else
 		connectionPromise.then(() => {

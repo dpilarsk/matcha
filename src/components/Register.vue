@@ -1,12 +1,12 @@
 <template>
 	<v-layout row wrap>
 		<v-alert
-			:color="alert.type"
+			:color="this.store.state.alert.type"
 			transition="scale-transition"
 			dismissible
-			v-model="alert.visible"
+			v-model="alert_visible"
 		>
-			{{ alert.message }}
+			{{ this.store.state.alert.message }}
 		</v-alert>
 		<v-flex xs12>
 			<v-form v-model="valid">
@@ -102,15 +102,13 @@
 </template>
 
 <script>
+	import 'vue-use-vuex'
+	import store from '@/store/UsersStore.js'
 	export default {
 		name: 'register',
 		data () {
 			return {
-				alert: {
-					visible: false,
-					message: null,
-					type: null
-				},
+				store,
 				valid: false,
 				gender: [
 					{
@@ -198,6 +196,16 @@
 				})
 			})
 		},
+		computed: {
+			alert_visible: {
+				get () {
+					return this.store.state.alert.visible
+				},
+				set () {
+					this.store.commit('DISMISS')
+				}
+			}
+		},
 		methods: {
 			submit () {
 				let _this = this
@@ -208,14 +216,10 @@
 					}
 				}).then(response => {
 					this.$refs['submit'].$el.innerHTML = 'S\'inscrire'
-					this.alert.message = response.body.message
-					this.alert.type = response.body.type
-					this.alert.visible = true
+					this.store.commit('NEW_ALERT', {type: response.body.type, message: response.body.message})
 				}, response => {
 					this.$refs['submit'].$el.innerHTML = 'S\'inscrire'
-					this.alert.message = 'Impossible de vous inscrire. Une erreur est survenue.'
-					this.alert.type = 'error'
-					this.alert.visible = true
+					this.store.commit('NEW_ALERT', {type: 'error', message: 'Impossible de vous inscrire. Une erreur est survenue.'})
 				})
 			}
 		}
