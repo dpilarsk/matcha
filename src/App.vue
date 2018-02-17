@@ -32,12 +32,20 @@
 							<v-icon>lock_open</v-icon>
 						</v-list-tile-action>
 						<v-list-tile-content>
-							<v-list-tile-title>Users</v-list-tile-title>
+							<v-list-tile-title>Connexion</v-list-tile-title>
 						</v-list-tile-content>
 					</router-link>
 				</div>
 
 				<div v-else>
+					<router-link :to="{name: 'Logout'}" exact tag="v-list-tile">
+						<v-list-tile-action>
+							<v-icon>play_for_work</v-icon>
+						</v-list-tile-action>
+						<v-list-tile-content>
+							<v-list-tile-title>Déconnexion</v-list-tile-title>
+						</v-list-tile-content>
+					</router-link>
 					<v-subheader>
 						Mon compte
 					</v-subheader>

@@ -9,6 +9,7 @@ import 'vue-use-vuex'
 import Vuex from 'vuex'
 import App from './App'
 import Vuetify from 'vuetify'
+import store from './store/UsersStore.js'
 import 'vuetify/dist/vuetify.min.css'
 
 let options = {
@@ -31,9 +32,27 @@ Vue.use(VueResource)
 
 Vue.config.productionTip = false
 
+router.beforeEach((to, from, next) => {
+	if (!Vue.ls.get('token')) {
+		store.state.logged = false
+		if ((to.path === '/login' || to.path === '/register')) next()
+		else next('/login')
+	} else {
+		store.state.logged = true
+		// store.state.commit('LOGIN')
+		if (to.path === '/logout') {
+			Vue.ls.remove('token')
+			store.state.logged = false
+			// store.state.commit('LOGOUT')
+			next('/login')
+		} else if ((to.path === '/login' || to.path === '/register')) next('/')
+		else next()
+	}
+})
+
 /* eslint-disable no-new */
 new Vue({
-	store: require('./store/UsersStore.js'),
+	store,
 	el: '#app',
 	router,
 	components: { App },
