@@ -188,8 +188,6 @@ exports.login	=	(req, res) => {
 								else
 								{
 									res.json({'status': 1, type: 'success', 'message': 'Vous êtes désormais connecté.', token: jwt.sign({user: result[0], exp: Math.floor(Date.now() / 1000) + ((60 * 60) * 24),}, 'demo')})
-									// let tok = jwt.sign({token, exp: Math.floor(Date.now() / 1000) + ((60 * 60) * 24),}, 'demo')
-									// message.debug(JSON.stringify(jwt.verify(tok, 'demo')))
 								}
 							})
 						}
