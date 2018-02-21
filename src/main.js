@@ -34,16 +34,17 @@ Vue.config.productionTip = false
 
 router.beforeEach((to, from, next) => {
 	if (!Vue.ls.get('token')) {
-		store.state.logged = false
+		store.commit('LOGOUT')
+		// store.state.logged = false
 		if ((to.path === '/login' || to.path === '/register')) next()
 		else next('/login')
 	} else {
-		store.state.logged = true
-		// store.state.commit('LOGIN')
+		// store.state.logged = true
+		store.commit('LOGIN')
 		if (to.path === '/logout') {
 			Vue.ls.remove('token')
-			store.state.logged = false
-			// store.state.commit('LOGOUT')
+			// store.state.logged = false
+			store.commit('LOGOUT')
 			next('/login')
 		} else if ((to.path === '/login' || to.path === '/register')) next('/')
 		else next()

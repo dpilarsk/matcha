@@ -15,6 +15,9 @@ let store = new Vuex.Store({
 		},
 		LOGOUT: state => {
 			state.logged = false
+			state.alert.type = 'success'
+			state.alert.message = 'Vous êtes bien déconnecté.'
+			state.alert.visible = true
 		},
 		NEW_ALERT: (state, payload) => {
 			state.alert.type = payload.type
@@ -22,6 +25,8 @@ let store = new Vuex.Store({
 			state.alert.visible = true
 		},
 		DISMISS: (state) => {
+			state.alert.type = null
+			state.alert.message = null
 			state.alert.visible = false
 		}
 	},
