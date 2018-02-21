@@ -107,34 +107,34 @@ exports.create	=	(req, res) => {
 	else
 		connectionPromise.then(() => {
 			connection.query('SELECT username, email FROM user WHERE username = ? OR email = ?', [req.body[0].username, req.body[0].email], (err, response) => {
-				if (err)
-				{
+				if (err) {
 					message.error(err)
 					res.json({'status': 0, type: 'error', 'message': 'Une erreur est survenue.'})
 				}
-				else if (response.length !== 0)
-					res.json({'status': 0, type: 'error', 'message': 'Le nom d\'utilisateur ou l\'email est déjà utilisé.'})
+				else if (response.length !== 0) res.json({'status': 0, type: 'error', 'message': 'Le nom d\'utilisateur ou l\'email est déjà utilisé.'})
 				else
 				{
 					bcrypt.genSalt(10, function(err, salt) {
 						bcrypt.hash(req.body[0].password, salt, function(err, hash) {
 							bcrypt.hash(Date.now() + req.body[0].username, 10, function(err, token) {
 								let pass = hash
+								let token1 = token.split('/').join('').split('.').join('')
 								connection.query('INSERT INTO user (first_name, last_name, username, email, password, age, gender, sexual_orientation, latitude, longitude, token) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
 									[req.body[0].first_name, req.body[0].last_name, req.body[0].username, req.body[0].email, pass, req.body[0].age, req.body[0].gender, req.body[0].orientation, req.body[0].currentLat,
-										req.body[0].currentLon, token], (err, result) => {
-										if (err)
-										{
+										req.body[0].currentLon, token1], (err, result) => {
+										if (err) {
 											message.error(err)
 											res.json({'status': 0, type: 'error', 'message': 'Une erreur est survenue.'})
 										}
-										else
-										{
+										else {
 											let mail = {
 												from: 'meeting@matcha.fr',
 												to: req.body[0].email,
 												subject: 'Confirmer votre compte sur Matcha !',
-												text: 'Bonjour, merci de vous être inscrit sur Matcha.fr. Voici votre lien de confirmation: <lien>.'
+												html:
+													'<h1>Bienvenue sur Matcha</h1>' +
+													'<p>Veuillez confirmer votre compte en cliquant juste en dessous.</p><br>' +
+													'<a href="http://localhost:8080/confirm/' + token1 + '">Valider mon compte</a>'
 											}
 											transporter.sendMail(mail, (error, info) => {
 												if (err)
@@ -164,19 +164,18 @@ exports.login	=	(req, res) => {
 		res.json({'status': 0, type: 'error', 'message': 'Une erreur est survenue.'})
 	else
 		connectionPromise.then(() => {
-			connection.query('SELECT * FROM user WHERE username = ?', [req.body[0].login], (err, result) => {
+			connection.query('SELECT id, password, username, first_name, last_name, age, gender, biography, sexual_orientation, email, latitude, longitude, max_distance, popularity FROM user WHERE username = ? AND status = 1', [req.body[0].login], (err, result) => {
 				if (err)
 				{
 					message.error(err)
 					res.json({'status': 0, type: 'error', 'message': 'Une erreur est survenue.'})
 				}
 				else if (result.length === 0)
-					res.json({'status': 0, type: 'error', 'message': 'Votre compte est introuvable !'})
+					res.json({'status': 0, type: 'error', 'message': 'Votre compte est introuvable ou n\'est pas encore validé !'})
 				else
 				{
 					bcrypt.compare(req.body[0].password, result[0].password, (err, res1) => {
-						if (!res1)
-							res.json({'status': 0, type: 'error', 'message': 'Le mot de passe est incorrect.'})
+						if (!res1) res.json({'status': 0, type: 'error', 'message': 'Le mot de passe est incorrect.'})
 						else
 						{
 							connection.query('UPDATE user SET connected = 1 WHERE username = ? AND password = ?', [req.body[0].login, result[0].password], (err, result1) => {
@@ -188,8 +187,6 @@ exports.login	=	(req, res) => {
 								else
 								{
 									res.json({'status': 1, type: 'success', 'message': 'Vous êtes désormais connecté.', token: jwt.sign({user: result[0], exp: Math.floor(Date.now() / 1000) + ((60 * 60) * 24),}, 'demo')})
-									// let tok = jwt.sign({token, exp: Math.floor(Date.now() / 1000) + ((60 * 60) * 24),}, 'demo')
-									// message.debug(JSON.stringify(jwt.verify(tok, 'demo')))
 								}
 							})
 						}

@@ -90,7 +90,9 @@
 						this.$ls.set('token', response.body.token, 60 * 60 * 1000 * 24)
 						this.valid = false
 						this.store.commit('LOGIN')
+						this.store.commit('CREATE_USER', this.$jwt.decode(response.body.token).user)
 						setTimeout(function () {
+							_this.store.commit('DISMISS')
 							_this.$router.push('/')
 						}, 2000)
 					}
