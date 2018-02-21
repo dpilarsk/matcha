@@ -164,19 +164,18 @@ exports.login	=	(req, res) => {
 		res.json({'status': 0, type: 'error', 'message': 'Une erreur est survenue.'})
 	else
 		connectionPromise.then(() => {
-			connection.query('SELECT * FROM user WHERE username = ?', [req.body[0].login], (err, result) => {
+			connection.query('SELECT id, password, username, first_name, last_name, age, gender, biography, sexual_orientation, email, latitude, longitude, max_distance, popularity FROM user WHERE username = ? AND status = 1', [req.body[0].login], (err, result) => {
 				if (err)
 				{
 					message.error(err)
 					res.json({'status': 0, type: 'error', 'message': 'Une erreur est survenue.'})
 				}
 				else if (result.length === 0)
-					res.json({'status': 0, type: 'error', 'message': 'Votre compte est introuvable !'})
+					res.json({'status': 0, type: 'error', 'message': 'Votre compte est introuvable ou n\'est pas encore validé !'})
 				else
 				{
 					bcrypt.compare(req.body[0].password, result[0].password, (err, res1) => {
-						if (!res1)
-							res.json({'status': 0, type: 'error', 'message': 'Le mot de passe est incorrect.'})
+						if (!res1) res.json({'status': 0, type: 'error', 'message': 'Le mot de passe est incorrect.'})
 						else
 						{
 							connection.query('UPDATE user SET connected = 1 WHERE username = ? AND password = ?', [req.body[0].login, result[0].password], (err, result1) => {
