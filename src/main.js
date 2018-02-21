@@ -34,17 +34,38 @@ Vue.config.productionTip = false
 
 router.beforeEach((to, from, next) => {
 	if (!Vue.ls.get('token')) {
-		store.commit('LOGOUT')
+		if (store.state.logged === true) store.commit('LOGOUT')
 		if ((to.name === 'Login' || to.name === 'Register') || to.name === 'Confirm') next()
 		else next('/login')
 	} else {
-		store.commit('LOGIN')
-		if (to.path === '/logout') {
-			Vue.ls.remove('token')
-			store.commit('LOGOUT')
-			next('/login')
-		} else if ((to.path === '/login' || to.path === '/register')) next('/')
-		else next()
+		if (Vue.$jwt.getToken() !== null) {
+			let token = JSON.parse(Vue.$jwt.getToken()).value
+			if (token) {
+				let valid = Vue.$jwt.decode(token)
+				if (valid !== null) {
+					if (to.path === '/logout') {
+						Vue.ls.remove('token')
+						store.commit('DELETE_USER')
+						if (store.state.logged === true) store.commit('LOGOUT')
+						next('/login')
+					} else if ((to.path === '/login' || to.path === '/register')) {
+						if (store.state.logged === false) store.commit('LOGIN')
+						next('/')
+					} else {
+						if (store.state.logged === false) store.commit('LOGIN')
+						next()
+					}
+				} else {
+					Vue.ls.remove('token')
+					if (store.state.logged === true) store.commit('LOGOUT')
+					next('/login')
+				}
+			} else {
+				Vue.ls.remove('token')
+				if (store.state.logged === true) store.commit('LOGOUT')
+				next('/login')
+			}
+		} else next('/login')
 	}
 })
 
