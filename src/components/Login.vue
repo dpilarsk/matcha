@@ -91,6 +91,7 @@
 						this.valid = false
 						this.store.commit('LOGIN')
 						setTimeout(function () {
+							_this.store.commit('DISMISS')
 							_this.$router.push('/')
 						}, 2000)
 					}
