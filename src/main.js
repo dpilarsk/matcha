@@ -33,7 +33,6 @@ Vue.use(VueResource)
 Vue.config.productionTip = false
 
 router.beforeEach((to, from, next) => {
-	console.log(to)
 	if (!Vue.ls.get('token')) {
 		store.commit('LOGOUT')
 		if ((to.name === 'Login' || to.name === 'Register') || to.name === 'Confirm') next()
