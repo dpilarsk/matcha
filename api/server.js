@@ -2,6 +2,7 @@ const	express =	require('express'),
 	app		=	express(),
 	path	=	require('path'),
 	users	=	require(path.join(__dirname, '/routes/user.js')),
+	tokens	=	require(path.join(__dirname, '/routes/token.js')),
 	message	=	require(path.join(__dirname, '/resources/utils.js')),
 	bodyParser = require('body-parser'),
 	port	=	process.env.PORT || 8080
@@ -29,5 +30,6 @@ app.use(bodyParser.urlencoded({
 }))
 
 app.use('/api', users)
+app.use('/api', tokens)
 
 app.listen(port, () => message.success('Server started !\nSomething happened on port ' + port))
