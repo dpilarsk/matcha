@@ -8,6 +8,7 @@ import Confirm from '@/components/Confirm'
 Vue.use(Router)
 
 export default new Router({
+	mode: 'history',
 	routes: [
 		{
 			path: '/',
