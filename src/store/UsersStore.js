@@ -7,7 +7,8 @@ let store = new Vuex.Store({
 			visible: false,
 			message: null,
 			type: null
-		}
+		},
+		user: null
 	},
 	mutations: {
 		LOGIN: state => {
@@ -25,6 +26,12 @@ let store = new Vuex.Store({
 			state.alert.type = null
 			state.alert.message = null
 			state.alert.visible = false
+		},
+		CREATE_USER: (state, payload) => {
+			state.user = payload
+		},
+		DELETE_USER: (state) => {
+			state.user = null
 		}
 	},
 	getters: {
