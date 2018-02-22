@@ -33,29 +33,20 @@ Vue.use(VueResource)
 Vue.config.productionTip = false
 
 router.beforeEach((to, from, next) => {
-	if (!Vue.ls.get('token')) {
-		if (store.state.logged === true) store.commit('LOGOUT')
-		if ((to.name === 'Login' || to.name === 'Register') || to.name === 'Confirm') next()
-		else next('/login')
-	} else {
-		if (Vue.$jwt.getToken() !== null) {
+	if (to.meta.requireAuth) {
+		if (to.name === 'Logout') {
+			console.log('TTT')
+			Vue.ls.remove('token')
+			if (store.state.logged === true) store.commit('LOGOUT')
+			next('/login')
+		} else if (!Vue.ls.get('token')) {
+			if (store.state.logged === true) store.commit('LOGOUT')
+			next('/login')
+		} else if (Vue.$jwt.getToken() !== null) {
 			let token = JSON.parse(Vue.$jwt.getToken()).value
 			if (token) {
-				let valid = Vue.$jwt.decode(token)
-				if (valid !== null) {
-					if (to.path === '/logout') {
-						Vue.ls.remove('token')
-						store.commit('DELETE_USER')
-						if (store.state.logged === true) store.commit('LOGOUT')
-						next('/login')
-					} else if ((to.path === '/login' || to.path === '/register')) {
-						if (store.state.logged === false) store.commit('LOGIN')
-						next('/')
-					} else {
-						if (store.state.logged === false) store.commit('LOGIN')
-						next()
-					}
-				} else {
+				if ((Vue.$jwt.decode(token)) !== null) next()
+				else {
 					Vue.ls.remove('token')
 					if (store.state.logged === true) store.commit('LOGOUT')
 					next('/login')
@@ -66,7 +57,12 @@ router.beforeEach((to, from, next) => {
 				next('/login')
 			}
 		} else next('/login')
-	}
+	} else if (!to.meta.requireAuth && (to.name === 'Login' || to.name === 'Register')) {
+		if (Vue.ls.get('token')) {
+			if (store.state.logged === false) store.commit('LOGIN')
+			next('/')
+		} else next()
+	} else next()
 })
 
 /* eslint-disable no-new */

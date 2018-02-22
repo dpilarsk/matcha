@@ -13,26 +13,41 @@ export default new Router({
 		{
 			path: '/',
 			name: 'HelloWorld',
-			component: HelloWorld
+			component: HelloWorld,
+			meta: {
+				requireAuth: true
+			}
 		},
 		{
 			path: '/register',
 			name: 'Register',
-			component: Register
+			component: Register,
+			meta: {
+				requireAuth: false
+			}
 		},
 		{
 			path: '/confirm/:token',
 			name: 'Confirm',
-			component: Confirm
+			component: Confirm,
+			meta: {
+				requireAuth: false
+			}
 		},
 		{
 			path: '/login',
 			name: 'Login',
-			component: Login
+			component: Login,
+			meta: {
+				requireAuth: false
+			}
 		},
 		{
 			path: '/logout',
-			name: 'Logout'
+			name: 'Logout',
+			meta: {
+				requireAuth: true
+			}
 		}
 	]
 })
