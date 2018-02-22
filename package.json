@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
     "api": "export PORT=8081 ; ./node_modules/nodemon/bin/nodemon.js ./api/server.js",
+	"init": "node api/setup.js",
     "start": "npm run dev",
     "lint": "eslint --ext .js,.vue src",
     "build": "node build/build.js"
