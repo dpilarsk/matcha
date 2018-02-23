@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
     "api": "export PORT=8081 ; ./node_modules/nodemon/bin/nodemon.js ./api/server.js",
-	"init": "node api/setup.js",
+    "init": "node api/setup.js",
     "start": "npm run dev",
     "lint": "eslint --ext .js,.vue src",
     "build": "node build/build.js"
@@ -27,6 +27,7 @@
     "vue-resource": "^1.3.6",
     "vue-router": "^3.0.1",
     "vue-use-vuex": "^0.2.2",
+    "vue2-google-maps": "^0.8.8",
     "vuejs-jwt": "^1.0.0",
     "vuetify": "^1.0.0",
     "vuex": "^3.0.1"
