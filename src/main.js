@@ -11,11 +11,18 @@ import App from './App'
 import Vuetify from 'vuetify'
 import store from './store/UsersStore.js'
 import 'vuetify/dist/vuetify.min.css'
+import * as VueGoogleMaps from 'vue2-google-maps'
 
 let options = {
 	namespace: 'matcha__'
 }
 
+Vue.use(VueGoogleMaps, {
+	load: {
+		key: 'AIzaSyATVRR2IIe6FF5KxTw5keIVQkFaOibX468',
+		libraries: 'places,drawing,visualization'
+	}
+})
 Vue.use(Vuetify, { theme: {
 	primary: '#ee44aa',
 	secondary: '#424242',

@@ -65,33 +65,56 @@
 							</v-layout>
 						</v-card>
 					</v-flex>
+					<v-flex xs12 sm6 md3 lg3 xl3 class="pl-3 pb-3 pr-3">
+						<v-card class="grey darken-1">
+							<h1 class="text-xs-center">Localisation</h1>
+							<hr>
+							<br>
+							<div class="pl-2">
+								<gmap-map
+									:center="center"
+									:zoom="17"
+									style="width: 500px; height: 300px"
+								>
+									<gmap-marker
+										:key="index"
+										v-for="(m, index) in markers"
+										:position="m.position"
+										:clickable="true"
+										:draggable="true"
+										@click="center=m.position"
+									></gmap-marker>
+								</gmap-map>
+							</div>
+						</v-card>
+					</v-flex>
 				</v-layout>
 			</v-card>
 		</v-flex>
 		<v-layout row wrap>
 			<v-flex xs12 sm6 md3 lg3 xl3 class="pl-3 pb-3">
-				<v-card color="primary">
+				<v-card color="grey darken-1">
 					<h1 class="text-xs-center">Filtrer</h1>
 					<hr>
 					<br>
 				</v-card>
 			</v-flex>
 			<v-flex xs12 sm6 md3 lg3 xl3 class="pl-3 pb-3">
-				<v-card color="primary">
+				<v-card color="grey darken-1">
 					<h1 class="text-xs-center">Filtrer</h1>
 					<hr>
 					<br>
 				</v-card>
 			</v-flex>
 			<v-flex xs12 sm6 md3 lg3 xl3 class="pl-3 pb-3">
-				<v-card color="primary">
+				<v-card color="grey darken-1">
 					<h1 class="text-xs-center">Filtrer</h1>
 					<hr>
 					<br>
 				</v-card>
 			</v-flex>
 			<v-flex xs12 sm6 md3 lg3 xl3 class="pl-3 pb-3">
-				<v-card color="primary">
+				<v-card color="grey darken-1">
 					<h1 class="text-xs-center">Filtrer</h1>
 					<hr>
 					<br>
@@ -101,22 +124,6 @@
 	</v-layout>
 </template>
 
-<!--<v-card>-->
-	<!--<h1 class="text-xs-center">Intervalle d'age</h1>-->
-	<!--<v-layout row wrap>-->
-		<!--<v-flex d-inline-flex>-->
-			<!--<v-flex class="pl-3">-->
-				<!--Age minimum {{ filters.ageMin }}-->
-				<!--<v-slider min="18" max="99" v-model="filters.ageMin" step="1"></v-slider>-->
-			<!--</v-flex>-->
-			<!--<v-flex class="pl-3">-->
-				<!--Age maximum {{ filters.ageMax }}-->
-				<!--<v-slider min="18" max="99" v-model="filters.ageMax" step="1"></v-slider>-->
-			<!--</v-flex>-->
-		<!--</v-flex>-->
-	<!--</v-layout>-->
-<!--</v-card>-->
-
 <script>
 	import 'vue-use-vuex'
 	import store from '@/store/UsersStore.js'
@@ -125,6 +132,10 @@
 		data () {
 			return {
 				store: store,
+				center: {lng: 2.318350, lat: 48.896649},
+				markers: [{
+					position: {lat: 48.896649, lng: 2.318350}
+				}],
 				filters: {
 					ageMin: null,
 					ageMax: null,
