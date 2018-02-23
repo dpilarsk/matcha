@@ -38,6 +38,14 @@
 				</div>
 
 				<div v-else>
+					<router-link :to="{name: 'Suggestions'}" exact tag="v-list-tile">
+						<v-list-tile-action>
+							<v-icon>home</v-icon>
+						</v-list-tile-action>
+						<v-list-tile-content>
+							<v-list-tile-title>Découvertes</v-list-tile-title>
+						</v-list-tile-content>
+					</router-link>
 					<router-link :to="{name: 'Logout'}" exact tag="v-list-tile">
 						<v-list-tile-action>
 							<v-icon>play_for_work</v-icon>
