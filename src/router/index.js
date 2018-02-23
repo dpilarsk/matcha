@@ -4,6 +4,7 @@ import HelloWorld from '@/components/HelloWorld'
 import Register from '@/components/Register'
 import Login from '@/components/Login'
 import Confirm from '@/components/Confirm'
+import Suggestions from '@/components/Suggestions'
 
 Vue.use(Router)
 
@@ -32,6 +33,14 @@ export default new Router({
 			component: Confirm,
 			meta: {
 				requireAuth: false
+			}
+		},
+		{
+			path: '/suggestions',
+			name: 'Suggestions',
+			component: Suggestions,
+			meta: {
+				requireAuth: true
 			}
 		},
 		{
