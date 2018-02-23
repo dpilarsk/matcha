@@ -34,6 +34,19 @@ Vue.config.productionTip = false
 
 router.beforeEach((to, from, next) => {
 	if (to.meta.requireAuth) {
+		if (Vue.$jwt.getToken() !== null) {
+			let token = JSON.parse(Vue.$jwt.getToken()).value
+			if (token && store.state.user === null) {
+				if ((Vue.$jwt.decode(token)) !== null) {
+					store.commit('CREATE_USER', Vue.$jwt.decode(JSON.parse(Vue.$jwt.getToken()).value).user)
+					store.commit('LOGIN')
+				} else {
+					Vue.ls.remove('token')
+					if (store.state.logged === true) store.commit('LOGOUT')
+					next('/login')
+				}
+			}
+		}
 		if (to.name === 'Logout') {
 			console.log('TTT')
 			Vue.ls.remove('token')
@@ -60,6 +73,7 @@ router.beforeEach((to, from, next) => {
 	} else if (!to.meta.requireAuth && (to.name === 'Login' || to.name === 'Register')) {
 		if (Vue.ls.get('token')) {
 			if (store.state.logged === false) store.commit('LOGIN')
+			if (store.state.user === null) store.commit('CREATE_USER', Vue.$jwt.decode(JSON.parse(Vue.$jwt.getToken()).value).user)
 			next('/')
 		} else next()
 	} else next()
