@@ -1,5 +1,6 @@
 const	mysql		=	require('mysql2'),
-	message		=	require(__dirname + '/resources/utils.js'),
+	path = require('path'),
+	message		=	require(path.join(__dirname, 'resources', 'utils.js')),
 	faker		=	require(__dirname + '/faker.js'),
 	fs			=	require('fs'),
 	db			=	require(__dirname + '/resources/db.js')

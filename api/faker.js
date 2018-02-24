@@ -7,7 +7,7 @@ module.exports = (() => {
 	let getGender = title => {
 		if (title === 'Mrs.' || title === 'Mme' || title === 'Ms.' || title === 'Mlle' || title === 'Miss') return 'woman'
 		else if (title === 'M' || title === 'Mr.') return 'man'
-		else if (title === 'Dr.' || title === 'Prof') return (Math.floor(Math.random()*(1-0+1)+0) === 1 ? 'man' : 'woman')
+		else if (title === 'Dr.' || title === 'Prof') return (Math.floor(Math.random() * (1 - 0 + 1) + 0) === 1 ? 'man' : 'woman')
 		else {
 			message.success(title)
 			return title
@@ -23,9 +23,10 @@ module.exports = (() => {
 	let generateRandomPoint = () => {
 		let	x0	= 2.352222,
 			y0	= 48.856614,
-			rd	= 50000/111300,
+			rd	= 50000 / 111300,
 			u	= Math.random(),
 			v	= Math.random(),
+			jkjk
 			w	= rd * Math.sqrt(u),
 			t	= 2 * Math.PI * v,
 			x	= w * Math.cos(t),
@@ -38,7 +39,7 @@ module.exports = (() => {
 		return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 	}
 
-	let genCoords = generateRandomPoint()
+	let coords = generateRandomPoint()
 	let user = [
 		username = faker.internet.userName().slice(0, 11),
 		first_name = faker.name.firstName(),

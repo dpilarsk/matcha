@@ -23,12 +23,8 @@ let connectionPromise = new Promise(function(resolve, reject) {
 });
 
 let transporter = nodemailer.createTransport({
-	host: 'smtp.mailtrap.io',
-	port: 2525,
-	auth: {
-		user: 'd4119f6ed6c5a1',
-		pass: '8ac2d72a7253e3'
-	}
+	port: 1025,
+	ignoreTLS: true
 })
 
 connectionPromise.then(() => {
