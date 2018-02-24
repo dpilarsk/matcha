@@ -75,12 +75,12 @@
 									<v-flex xs12 sm12 md12 lg12 xl9>
 										<v-text-field
 											label="Lieu de départ"
-											:value="map.inputAddress"
+											v-model="map.input.address"
 											box
 										></v-text-field>
 									</v-flex>
 									<v-flex xs12 lg12 xl3 class="text-xs-center">
-										<v-btn color="success">Localiser</v-btn>
+										<v-btn @click="locate" color="success">Localiser</v-btn>
 									</v-flex>
 								</v-layout>
 								<gmap-map
@@ -104,32 +104,15 @@
 			</v-card>
 		</v-flex>
 		<v-layout row wrap>
-			<v-flex xs12 md6 lg4 xl2 class="pl-3 pb-3">
-				<v-card color="grey darken-1">
-					<h1 class="text-xs-center">Filtrer</h1>
-					<hr>
-					<br>
-				</v-card>
-			</v-flex>
-			<v-flex xs12 md6 lg4 xl2 class="pl-3 pb-3">
-				<v-card color="grey darken-1">
-					<h1 class="text-xs-center">Filtrer</h1>
-					<hr>
-					<br>
-				</v-card>
-			</v-flex>
-			<v-flex xs12 md6 lg4 xl2 class="pl-3 pb-3">
-				<v-card color="grey darken-1">
-					<h1 class="text-xs-center">Filtrer</h1>
-					<hr>
-					<br>
-				</v-card>
-			</v-flex>
-			<v-flex xs12 md6 lg4 xl2 class="pl-3 pb-3">
-				<v-card color="grey darken-1">
-					<h1 class="text-xs-center">Filtrer</h1>
-					<hr>
-					<br>
+			<v-flex v-for="(user, index) in users" :key="user.id" xs12 md6 lg4 xl2 class="pl-3 pb-3">
+				<v-card color="grey darken-1" @mouseover.native="displayAddress(user)">
+					<v-card-media :src="user.picture" height="200px"></v-card-media>
+					<v-card-title primary-title>
+						<div>
+							<h3 class="headline mb-0">{{ user.username }}</h3>
+							<div>{{ user.address }}</div>
+						</div>
+					</v-card-title>
 				</v-card>
 			</v-flex>
 		</v-layout>
@@ -144,11 +127,16 @@
 		data () {
 			return {
 				store: store,
+				users: null,
 				map: {
 					center: {lng: null, lat: null},
 					zoom: 17,
 					markers: [],
-					inputAddress: null
+					input: {
+						address: null,
+						lat: null,
+						lng: null
+					}
 				},
 				filters: {
 					ageMin: null,
@@ -164,7 +152,7 @@
 			this.map.center.lng = this.store.state.user.longitude
 			this.map.center.lat = this.store.state.user.latitude
 			this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + (this.store.state.user.latitude + ',' + this.store.state.user.longitude) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
-				this.map.inputAddress = response.body.results[0].formatted_address
+				this.map.input.address = response.body.results[0].formatted_address
 				this.map.markers.push({
 					position: {
 						lat: this.store.state.user.latitude,
@@ -180,6 +168,37 @@
 			this.filters.distanceMax = (Number(this.store.state.user.max_distance) < 140) ? Number(this.store.state.user.max_distance) + 10 : Number(this.store.state.user.max_distance)
 			this.filters.popularityMin = (Number(this.store.state.user.popularity) >= 100) ? Number(this.store.state.user.popularity) - 100 : Number(this.store.state.user.popularity)
 			this.filters.popularityMax = (Number(this.store.state.user.popularity) <= 9900) ? Number(this.store.state.user.popularity) + 100 : Number(this.store.state.user.popularity)
+			this.$http.get('http://localhost:8081/api/users').then(response => {
+				this.users = response.body.users
+			}, response => {
+				console.error(response)
+			})
+		},
+		methods: {
+			locate: function () {
+				this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?address=' + (this.map.input.address) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
+					this.map.markers = []
+					this.map.input.lat = response.body.results[0].geometry.location.lat
+					this.map.input.lng = response.body.results[0].geometry.location.lng
+					this.map.markers.push({
+						position: {
+							lat: response.body.results[0].geometry.location.lat,
+							lng: response.body.results[0].geometry.location.lng
+						}
+					})
+					this.map.center = this.map.markers[0].position
+					this.map.input.address = response.body.results[0].formatted_address
+				}, response => {
+					console.error(response)
+				})
+			},
+			displayAddress: function (user) {
+				this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + (user.longitude + ',' + user.latitude) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
+					user.address = response.body.results[1].formatted_address
+				}, response => {
+					user.address = 'Impossible de trouver l\'adresse.'
+				})
+			}
 		},
 		computed: {
 			alert_visible: {
