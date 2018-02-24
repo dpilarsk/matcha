@@ -13,8 +13,8 @@
 				<h1 class="text-xs-center">Filtrer</h1>
 				<hr>
 				<br>
-				<v-layout row wrap>
-					<v-flex xs12 sm6 md3 lg3 xl3 class="pl-3 pb-3 pr-3">
+				<v-layout row wrap align-baseline>
+					<v-flex xs12 sm6 md3 class="pl-3 pb-3 pr-3">
 						<v-card class="grey darken-1">
 							<h1 class="text-xs-center">Intervalle d'age</h1>
 							<hr>
@@ -65,28 +65,36 @@
 							</v-layout>
 						</v-card>
 					</v-flex>
-					<v-flex xs12 sm6 md3 lg3 xl3 class="pl-3 pb-3 pr-3">
+					<v-flex xs12 sm6 md3 class="pl-3 pb-3 pr-3">
 						<v-card class="grey darken-1">
 							<h1 class="text-xs-center">Localisation</h1>
 							<hr>
 							<br>
 							<div class="pl-2 pr-2 pb-2">
-								<v-text-field
-									label="Lieu de départ"
-									box
-								></v-text-field>
+								<v-layout row wrap align-center>
+									<v-flex xs12 sm12 md12 lg12 xl9>
+										<v-text-field
+											label="Lieu de départ"
+											:value="map.inputAddress"
+											box
+										></v-text-field>
+									</v-flex>
+									<v-flex xs12 lg12 xl3 class="text-xs-center">
+										<v-btn color="success">Localiser</v-btn>
+									</v-flex>
+								</v-layout>
 								<gmap-map
-									:center="center"
-									:zoom="zoom"
+									:center="map.center"
+									:zoom="map.zoom"
 									style="width: 100%; height: 300px;"
 								>
 									<gmap-marker
 										:key="index"
-										v-for="(m, index) in markers"
+										v-for="(m, index) in map.markers"
 										:position="m.position"
 										:clickable="true"
-										:draggable="true"
-										@click="center=m.position"
+										:draggable="false"
+										@click="map.center=m.position"
 									></gmap-marker>
 								</gmap-map>
 							</div>
@@ -136,11 +144,12 @@
 		data () {
 			return {
 				store: store,
-				center: {lng: 2.318350, lat: 48.896649},
-				zoom: 17,
-				markers: [{
-					position: {lat: 48.896649, lng: 2.318350}
-				}],
+				map: {
+					center: {lng: null, lat: null},
+					zoom: 17,
+					markers: [],
+					inputAddress: null
+				},
 				filters: {
 					ageMin: null,
 					ageMax: null,
@@ -152,6 +161,19 @@
 			}
 		},
 		mounted () {
+			this.map.center.lng = this.store.state.user.longitude
+			this.map.center.lat = this.store.state.user.latitude
+			this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + (this.store.state.user.latitude + ',' + this.store.state.user.longitude) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
+				this.map.inputAddress = response.body.results[0].formatted_address
+				this.map.markers.push({
+					position: {
+						lat: this.store.state.user.latitude,
+						lng: this.store.state.user.longitude
+					}
+				})
+			}, response => {
+				console.error(response)
+			})
 			this.filters.ageMin = (Number(this.store.state.user.age) > 18) ? Number(this.store.state.user.age) - 1 : Number(this.store.state.user.age)
 			this.filters.ageMax = (Number(this.store.state.user.age) < 99) ? Number(this.store.state.user.age) + 1 : Number(this.store.state.user.age)
 			this.filters.distanceMin = (Number(this.store.state.user.max_distance) > 10) ? Number(this.store.state.user.max_distance) - 10 : Number(this.store.state.user.max_distance)
