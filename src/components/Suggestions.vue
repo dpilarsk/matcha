@@ -70,11 +70,15 @@
 							<h1 class="text-xs-center">Localisation</h1>
 							<hr>
 							<br>
-							<div class="pl-2">
+							<div class="pl-2 pr-2 pb-2">
+								<v-text-field
+									label="Lieu de départ"
+									box
+								></v-text-field>
 								<gmap-map
 									:center="center"
-									:zoom="17"
-									style="width: 500px; height: 300px"
+									:zoom="zoom"
+									style="width: 100%; height: 300px;"
 								>
 									<gmap-marker
 										:key="index"
@@ -92,28 +96,28 @@
 			</v-card>
 		</v-flex>
 		<v-layout row wrap>
-			<v-flex xs12 sm6 md3 lg3 xl3 class="pl-3 pb-3">
+			<v-flex xs12 md6 lg4 xl2 class="pl-3 pb-3">
 				<v-card color="grey darken-1">
 					<h1 class="text-xs-center">Filtrer</h1>
 					<hr>
 					<br>
 				</v-card>
 			</v-flex>
-			<v-flex xs12 sm6 md3 lg3 xl3 class="pl-3 pb-3">
+			<v-flex xs12 md6 lg4 xl2 class="pl-3 pb-3">
 				<v-card color="grey darken-1">
 					<h1 class="text-xs-center">Filtrer</h1>
 					<hr>
 					<br>
 				</v-card>
 			</v-flex>
-			<v-flex xs12 sm6 md3 lg3 xl3 class="pl-3 pb-3">
+			<v-flex xs12 md6 lg4 xl2 class="pl-3 pb-3">
 				<v-card color="grey darken-1">
 					<h1 class="text-xs-center">Filtrer</h1>
 					<hr>
 					<br>
 				</v-card>
 			</v-flex>
-			<v-flex xs12 sm6 md3 lg3 xl3 class="pl-3 pb-3">
+			<v-flex xs12 md6 lg4 xl2 class="pl-3 pb-3">
 				<v-card color="grey darken-1">
 					<h1 class="text-xs-center">Filtrer</h1>
 					<hr>
@@ -133,6 +137,7 @@
 			return {
 				store: store,
 				center: {lng: 2.318350, lat: 48.896649},
+				zoom: 17,
 				markers: [{
 					position: {lat: 48.896649, lng: 2.318350}
 				}],

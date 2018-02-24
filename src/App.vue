@@ -100,7 +100,7 @@
 			<v-container fluid>
 				<v-slide-y-transition mode="out-in">
 					<v-layout row wrap>
-						<router-view></router-view>
+						<router-view transition="fade-transition"></router-view>
 					</v-layout>
 				</v-slide-y-transition>
 			</v-container>

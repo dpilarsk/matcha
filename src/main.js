@@ -24,7 +24,7 @@ Vue.use(VueGoogleMaps, {
 	}
 })
 Vue.use(Vuetify, { theme: {
-	primary: '#ee44aa',
+	primary: '#00B0FF',
 	secondary: '#424242',
 	accent: '#82B1FF',
 	error: '#FF5252',
@@ -58,9 +58,11 @@ router.beforeEach((to, from, next) => {
 			console.log('TTT')
 			Vue.ls.remove('token')
 			if (store.state.logged === true) store.commit('LOGOUT')
+			store.commit('DELETE_USER')
 			next('/login')
 		} else if (!Vue.ls.get('token')) {
 			if (store.state.logged === true) store.commit('LOGOUT')
+			store.commit('DELETE_USER')
 			next('/login')
 		} else if (Vue.$jwt.getToken() !== null) {
 			let token = JSON.parse(Vue.$jwt.getToken()).value
@@ -68,11 +70,13 @@ router.beforeEach((to, from, next) => {
 				if ((Vue.$jwt.decode(token)) !== null) next()
 				else {
 					Vue.ls.remove('token')
+					store.commit('DELETE_USER')
 					if (store.state.logged === true) store.commit('LOGOUT')
 					next('/login')
 				}
 			} else {
 				Vue.ls.remove('token')
+				store.commit('DELETE_USER')
 				if (store.state.logged === true) store.commit('LOGOUT')
 				next('/login')
 			}
