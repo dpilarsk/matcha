@@ -1,6 +1,7 @@
-const	express		=	require('express'),
+const
+	express		=	require('express'),
 	router		=	express.Router(),
-	path	=	require('path'),
+	path		=	require('path'),
 	controller	=	require(path.join(__dirname, '/../controllers/users.js'))
 
 router.use((req, res, next) => {
