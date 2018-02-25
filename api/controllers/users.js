@@ -1,26 +1,28 @@
 const	mysql		=	require('mysql2'),
-	bcrypt		=	require('bcrypt'),
-	path	=	require('path'),
-	jwt			=	require('jsonwebtoken'),
-	moment		=	require('moment'),
-	nodemailer	=	require('nodemailer'),
-	db			=	require(__dirname + '/../resources/db.js'),
-	message		=	require(__dirname + '/../resources/utils.js'),
-	connection	=	mysql.createConnection({
+	bcrypt			=	require('bcrypt'),
+	path			=	require('path'),
+	jwt				=	require('jsonwebtoken'),
+	// moment		=	require('moment'),
+	nodemailer		=	require('nodemailer'),
+	db				=	require(path.join(__dirname, '..', 'resources', 'db.js')),
+	message			=	require(path.join(__dirname, '..', 'resources', 'utils.js')),
+	connection		=	mysql.createConnection({
 		host: db.cred().host,
 		user: db.cred().user,
 		password: db.cred().password
 	})
 
-let connectionPromise = new Promise(function(resolve, reject) {
+// TODO Tools here
+let connectionPromise = new Promise(function (resolve, reject) {
 	connection.connect(err => {
-		if (err)
+		if (err) {
 			reject(err)
-		else
+		} else {
 			message.success('Connexion au serveur MySQL réussie.')
+		}
 		resolve()
 	})
-});
+})
 
 let transporter = nodemailer.createTransport({
 	port: 1025,
@@ -29,10 +31,10 @@ let transporter = nodemailer.createTransport({
 
 connectionPromise.then(() => {
 	connection.query('USE matcha', (err) => {
-		if (err)
-		{
+		if (err) {
 			message.error('Impossible d\'accéder a la bdd')
-			return
+			// return
+			// TODO WHY THIS SHIT HAPPEND >>> si pas de bdd, ne devrait t-on pas exit violemment car ca veut dire catastrophe sur le serveur ? le return ne return nul part
 		}
 	})
 })
@@ -40,35 +42,39 @@ connectionPromise.then(() => {
 exports.index	=	(req, res) => {
 	connectionPromise
 		.then(() => {
-			if (req.query.pop)
+			if (req.query.pop) {
 				req.query.pop = (req.query.pop[0]).split(',')
-			else
+			} else {
 				req.query.pop = []
+			}
 			req.query.pop[0] = req.query.pop[0] || 0
 			req.query.pop[1] = req.query.pop[1] || 9999
 
-			if (req.query.sexual_orientation)
+			if (req.query.sexual_orientation) {
 				req.query.sexual_orientation = (req.query.sexual_orientation[0]).split(',')
-			else
+			} else {
 				req.query.sexual_orientation = []
+			}
+			// TODO Why this 3 lines below ?
 			req.query.sexual_orientation[0] = req.query.sexual_orientation[0] === undefined ? undefined : 'heterosexual'
 			req.query.sexual_orientation[1] = req.query.sexual_orientation[1] === undefined ? undefined : 'bisexual'
 			req.query.sexual_orientation[2] = req.query.sexual_orientation[2] === undefined ? undefined : 'homosexual'
 
-			if (!req.query.limit || isNaN(Number(req.query.limit)) || req.query.limit > 100)
+			if (!req.query.limit || isNaN(Number(req.query.limit)) || req.query.limit > 100) {
 				req.query.limit = 30
-			else
+			} else {
 				req.query.limit = Number(req.query.limit)
+			}
 
-			if (!req.query.page || isNaN(Number(req.query.page)))
+			if (!req.query.page || isNaN(Number(req.query.page))) {
 				req.query.page = 0
-			else
+			} else {
 				req.query.page = Number(req.query.page) - 1
-
-			if (!req.query.sort)
+			}
+			if (!req.query.sort) {
 				req.query.sort = ['id', 'asc']
-			else
-			{
+			} else {
+				// TODO why there is a tmp var ?
 				let tab = req.query.sort.split('_', 2)
 				req.query.sort = tab
 			}
@@ -79,14 +85,13 @@ exports.index	=	(req, res) => {
 			connection.query(request, [req.query.gender, req.query.gender,
 				req.query.sexual_orientation[0], req.query.sexual_orientation[1], req.query.sexual_orientation[2], req.query.sexual_orientation[0],
 				req.query.pop[0], req.query.pop[1], req.query.pop[0], req.query.limit, req.query.page * req.query.limit], (err, response, fields) => {
-				if (err)
-				{
-					message.error(err)
-					res.json({'status': 0})
-				}
-				else
-					res.json({'status': 1, 'users': response})
-			})
+					if (err) {
+						message.error(err)
+						res.json({'status': 0})
+					} else {
+						res.json({'status': 1, 'users': response})
+					}
+				})
 		})
 		.catch(err => {
 			message.error('Un probleme est survenu:\n' + err)
@@ -98,9 +103,9 @@ exports.create	=	(req, res) => {
 	if (!req.body[0] || !req.body[0].first_name || !req.body[0].last_name
 		|| !req.body[0].username ||(!req.body[0].email || (req.body[0].email.match('^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$') === null)) || (!req.body[0].age || req.body[0].age < 18 || req.body[0].age > 99)
 		|| !req.body[0].gender || !req.body[0].orientation
-		|| (!req.body[0].password || (req.body[0].password).match('^(?=.*[A-Z])(?=.*\\d)(?=.*[$@$!%*?&])[A-Za-z\\d$@$!%*?&]') === null))
+		|| (!req.body[0].password || (req.body[0].password).match('^(?=.*[A-Z])(?=.*\\d)(?=.*[$@$!%*?&])[A-Za-z\\d$@$!%*?&]') === null)) {
 		res.json({'status': 0, type: 'error', 'message': 'Un des champs est manquant ou erroné.'})
-	else
+	} else {
 		connectionPromise.then(() => {
 			connection.query('SELECT username, email FROM user WHERE username = ? OR email = ?', [req.body[0].username, req.body[0].email], (err, response) => {
 				if (err) {
@@ -118,31 +123,31 @@ exports.create	=	(req, res) => {
 								connection.query('INSERT INTO user (first_name, last_name, username, email, password, age, gender, sexual_orientation, latitude, longitude, token) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
 									[req.body[0].first_name, req.body[0].last_name, req.body[0].username, req.body[0].email, pass, req.body[0].age, req.body[0].gender, req.body[0].orientation, req.body[0].currentLat,
 										req.body[0].currentLon, token1], (err, result) => {
-										if (err) {
-											message.error(err)
-											res.json({'status': 0, type: 'error', 'message': 'Une erreur est survenue.'})
-										}
-										else {
-											let mail = {
-												from: 'meeting@matcha.fr',
-												to: req.body[0].email,
-												subject: 'Confirmer votre compte sur Matcha !',
-												html:
+											if (err) {
+												message.error(err)
+												res.json({'status': 0, type: 'error', 'message': 'Une erreur est survenue.'})
+											}
+											else {
+												let mail = {
+													from: 'meeting@matcha.fr',
+													to: req.body[0].email,
+													subject: 'Confirmer votre compte sur Matcha !',
+													html:
 													'<h1>Bienvenue sur Matcha</h1>' +
 													'<p>Veuillez confirmer votre compte en cliquant juste en dessous.</p><br>' +
 													'<a href="http://localhost:8080/confirm/' + token1 + '">Valider mon compte</a>'
-											}
-											transporter.sendMail(mail, (error, info) => {
-												if (err)
-												{
-													message.error(err)
-													res.json({'status': 0, type: 'error', 'message': 'Une erreur est survenue durant l\'envoi de l\'email.'})
 												}
-												else
-													res.json({'status': 1, type: 'success', 'message': 'Votre compte à bien été crée, veuillez consulter votre boite mail.'})
-											})
-										}
-									})
+												transporter.sendMail(mail, (error, info) => {
+													if (err)
+													{
+														message.error(err)
+														res.json({'status': 0, type: 'error', 'message': 'Une erreur est survenue durant l\'envoi de l\'email.'})
+													}
+													else
+														res.json({'status': 1, type: 'success', 'message': 'Votre compte à bien été crée, veuillez consulter votre boite mail.'})
+												})
+											}
+										})
 							})
 						})
 					})
@@ -153,6 +158,7 @@ exports.create	=	(req, res) => {
 				message.error('Connexion au serveur MySQL échouée:\n' + err)
 				res.json({'status': 0})
 			})
+	}
 }
 
 exports.login	=	(req, res) => {
