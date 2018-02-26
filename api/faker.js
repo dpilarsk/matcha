@@ -5,8 +5,11 @@ const faker			=	require('faker'),
 function createFalseUser () {
 	return [
 		faker.internet.userName().slice(0, 20),									// username
+		faker.name.firstName(),													// First Name
+		faker.name.lastName(),													// Last Name
 		bcrypt.hashSync('test', 2),												// password
-		faker.internet.email()													// email
+		faker.internet.email(),													// email
+		Math.random() > 0.5														// Status
 	]
 }
 
@@ -39,13 +42,10 @@ function createFalseProfile (userID) {
 
 	return [
 		userID + 1,																// User Id (+1 is for align on table key beginning at 1)
-		faker.name.firstName(),													// First Name
-		faker.name.lastName(),													// Last Name
 		Math.floor(Math.random() * 102 + 18),									// Age in [ 18 - 120 ]
 		Math.random() > 0.5 ? 'man' : 'woman',									// Gender
 		faker.lorem.sentences(),												// Biography
 		sexuality[Math.floor(Math.random() * 3)],								// Sexual orientation
-		Math.random() > 0.5,													// Status
 		coords.lng,																// Longitude
 		coords.lat,																// Latitude
 		Math.floor(Math.random() * 130 + 20),									// Range in [ 20 - 150 ]
