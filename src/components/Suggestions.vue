@@ -110,7 +110,7 @@
 					<v-card-media :src="user.picture" height="200px"></v-card-media>
 					<v-card-title primary-title>
 						<div>
-							<h3 class="headline mb-0">{{ user.username }}</h3>
+							<h3 class="headline mb-0">{{ user.username }} - {{ user.popularity }}</h3>
 							<div>{{ user.address }}</div>
 						</div>
 					</v-card-title>
@@ -119,6 +119,10 @@
 		</transition-group>
 	</v-layout>
 </template>
+
+<!--icons:-->
+<!--icon="http://www.themusicrun.com/images/globalhomepage-dot.png"-->
+<!--icon="https://imgrabo.com/design/site/guide/google_map_red_dot_icon.png"-->
 
 <script>
 	import 'vue-use-vuex'
@@ -200,6 +204,11 @@
 			})
 		},
 		methods: {
+			sortArrayByParams: function (x, y) {
+				if (x.popularity > y.popularity) return -1
+				if (x.popularity < y.popularity) return 1
+				return 0
+			},
 			getCoordsRange: function (radius, latitude, longitude) {
 				let kmInDegree = 111.320 * Math.cos(latitude / 180.0 * Math.PI)
 				let deltaLat = radius / 111.1
@@ -235,7 +244,7 @@
 				let distanceRange = this.getCoordsRange(this.filters.distanceMax, this.map.input.lat, this.map.input.lng)
 				if (this.filters.ageMin > this.filters.ageMax) [this.filters.ageMin, this.filters.ageMax] = [this.filters.ageMax, this.filters.ageMin]
 				if (this.filters.popularityMin > this.filters.popularityMax) [this.filters.popularityMin, this.filters.popularityMax] = [this.filters.popularityMax, this.filters.popularityMin]
-				return this.users.filter((u, i) => {
+				return this.users.sort(this.sortArrayByParams).filter((u, i) => {
 					let condition = (u.age >= this.filters.ageMin && u.age <= this.filters.ageMax) &&
 						(u.latitude >= distanceRange.minLong && u.latitude <= distanceRange.maxLong) && (u.longitude >= distanceRange.minLat && u.longitude <= distanceRange.maxLat) &&
 						(u.popularity >= this.filters.popularityMin && u.popularity <= this.filters.popularityMax)
