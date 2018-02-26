@@ -55,12 +55,8 @@
 							<br>
 							<v-layout row wrap>
 								<v-flex xs12 sm12 md12 lg12 xl6 class="pl-3">
-									Distance minimale: {{ filters.distanceMin }}
-									<v-slider min="0" max="150" v-model="filters.distanceMin" step="1"></v-slider>
-								</v-flex>
-								<v-flex xs12 sm12 md12 lg12 xl6 class="pl-3">
 									Distance maximale: {{ filters.distanceMax }}
-									<v-slider min="0" max="150" v-model="filters.distanceMax" step="1"></v-slider>
+									<v-slider min="0.5" max="150" v-model="filters.distanceMax" step="0.5"></v-slider>
 								</v-flex>
 							</v-layout>
 						</v-card>
@@ -94,8 +90,13 @@
 										:position="m.position"
 										:clickable="true"
 										:draggable="false"
+										:visible="m.visible"
 										@click="map.center=m.position"
 									></gmap-marker>
+									<gmap-circle
+										:center="{lat: Number(map.input.lat), lng: Number(map.input.lng)}"
+										:radius="filters.distanceMax * 1000"
+									></gmap-circle>
 								</gmap-map>
 							</div>
 						</v-card>
@@ -103,8 +104,8 @@
 				</v-layout>
 			</v-card>
 		</v-flex>
-		<v-layout row wrap>
-			<v-flex v-for="(user, index) in users" :key="user.id" xs12 md6 lg4 xl2 class="pl-3 pb-3">
+		<transition-group tag="div" class="layout row wrap" name="rotate" enter-active-class="bounceInLeft" leave-active-class="">
+			<v-flex v-for="(user, index) in usersFiltered" :key="user.id" xs12 md6 lg4 xl2 class="pl-3 pb-3">
 				<v-card color="grey darken-1">
 					<v-card-media :src="user.picture" height="200px"></v-card-media>
 					<v-card-title primary-title>
@@ -115,19 +116,20 @@
 					</v-card-title>
 				</v-card>
 			</v-flex>
-		</v-layout>
+		</transition-group>
 	</v-layout>
 </template>
 
 <script>
 	import 'vue-use-vuex'
 	import store from '@/store/UsersStore.js'
+	require('vue2-animate/dist/vue2-animate.min.css')
 	export default {
 		name: 'suggestions',
 		data () {
 			return {
 				store: store,
-				users: null,
+				users: [],
 				map: {
 					center: {lng: null, lat: null},
 					zoom: 17,
@@ -143,14 +145,13 @@
 					ageMax: null,
 					popularityMin: null,
 					popularityMax: null,
-					distanceMin: null,
 					distanceMax: null
 				}
 			}
 		},
 		mounted () {
-			this.map.center.lng = this.store.state.user.longitude
-			this.map.center.lat = this.store.state.user.latitude
+			this.map.input.lng = this.map.center.lng = this.store.state.user.longitude
+			this.map.input.lat = this.map.center.lat = this.store.state.user.latitude
 			this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + (this.store.state.user.latitude + ',' + this.store.state.user.longitude) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
 				this.map.input.address = response.body.results[0].formatted_address
 				this.map.markers.push({
@@ -175,6 +176,13 @@
 				this.users = response.body.users
 				this.$nextTick().then(() => {
 					this.users.forEach(u => {
+						this.map.markers.push({
+							position: {
+								lat: u.longitude,
+								lng: u.latitude,
+								visible: true
+							}
+						})
 						this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + (u.longitude + ',' + u.latitude) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
 							response.body.results = response.body.results.filter(a => a.types.indexOf('political') !== -1)
 							if (response.body.results[0] !== undefined) {
@@ -192,6 +200,17 @@
 			})
 		},
 		methods: {
+			getCoordsRange: function (radius, latitude, longitude) {
+				let kmInDegree = 111.320 * Math.cos(latitude / 180.0 * Math.PI)
+				let deltaLat = radius / 111.1
+				let deltaLong = radius / kmInDegree
+
+				let minLat = latitude - deltaLat
+				let maxLat = latitude + deltaLat
+				let minLong = longitude - deltaLong
+				let maxLong = longitude + deltaLong
+				return {minLat, maxLat, minLong, maxLong}
+			},
 			locate: function () {
 				this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?address=' + (this.map.input.address) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
 					this.map.markers = []
@@ -201,7 +220,8 @@
 						position: {
 							lat: response.body.results[0].geometry.location.lat,
 							lng: response.body.results[0].geometry.location.lng
-						}
+						},
+						visible: false
 					})
 					this.map.center = this.map.markers[0].position
 					this.map.input.address = response.body.results[0].formatted_address
@@ -211,6 +231,21 @@
 			}
 		},
 		computed: {
+			usersFiltered () {
+				// TODO: MATCH BY TAGS
+				if (this.filters.ageMin > this.filters.ageMax) [this.filters.ageMin, this.filters.ageMax] = [this.filters.ageMax, this.filters.ageMin]
+				if (this.filters.popularityMin > this.filters.popularityMax) [this.filters.popularityMin, this.filters.popularityMax] = [this.filters.popularityMax, this.filters.popularityMin]
+				return this.users.filter((u, i) => {
+					if (this.map.markers[i + 1]) {
+						if (u.age >= this.filters.ageMin && u.age <= this.filters.ageMax) {
+							this.map.markers[i + 1].visible = true
+						} else {
+							this.map.markers[i + 1].visible = false
+						}
+					}
+					return (u.age >= this.filters.ageMin && u.age <= this.filters.ageMax)
+				})
+			},
 			alert_visible: {
 				get () {
 					return this.store.state.alert.visible
