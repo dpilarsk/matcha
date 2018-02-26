@@ -105,7 +105,7 @@
 		</v-flex>
 		<v-layout row wrap>
 			<v-flex v-for="(user, index) in users" :key="user.id" xs12 md6 lg4 xl2 class="pl-3 pb-3">
-				<v-card color="grey darken-1" @mouseover.native="displayAddress(user)">
+				<v-card color="grey darken-1">
 					<v-card-media :src="user.picture" height="200px"></v-card-media>
 					<v-card-title primary-title>
 						<div>
@@ -169,7 +169,21 @@
 			this.filters.popularityMin = (Number(this.store.state.user.popularity) >= 100) ? Number(this.store.state.user.popularity) - 100 : Number(this.store.state.user.popularity)
 			this.filters.popularityMax = (Number(this.store.state.user.popularity) <= 9900) ? Number(this.store.state.user.popularity) + 100 : Number(this.store.state.user.popularity)
 			this.$http.get('http://localhost:8081/api/users').then(response => {
+				response.body.users.forEach(u => {
+					u.address = ''
+				})
 				this.users = response.body.users
+				setTimeout(() => {
+					this.$nextTick().then(() => {
+						this.users.forEach(u => {
+							this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + (u.longitude + ',' + u.latitude) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
+								u.address = response.body.results[1].formatted_address
+							}, () => {
+								u.address = 'Impossible de trouver l\'adresse.'
+							})
+						})
+					})
+				}, 0)
 			}, response => {
 				console.error(response)
 			})
@@ -190,13 +204,6 @@
 					this.map.input.address = response.body.results[0].formatted_address
 				}, response => {
 					console.error(response)
-				})
-			},
-			displayAddress: function (user) {
-				this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + (user.longitude + ',' + user.latitude) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
-					user.address = response.body.results[1].formatted_address
-				}, response => {
-					user.address = 'Impossible de trouver l\'adresse.'
 				})
 			}
 		},
