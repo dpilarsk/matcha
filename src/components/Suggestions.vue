@@ -132,7 +132,7 @@
 				users: [],
 				map: {
 					center: {lng: null, lat: null},
-					zoom: 17,
+					zoom: 14,
 					markers: [],
 					input: {
 						address: null,
@@ -233,6 +233,7 @@
 		computed: {
 			usersFiltered () {
 				// TODO: MATCH BY TAGS
+				let distanceRange = this.getCoordsRange(this.filters.distanceMax, this.map.input.lat, this.map.input.lng)
 				if (this.filters.ageMin > this.filters.ageMax) [this.filters.ageMin, this.filters.ageMax] = [this.filters.ageMax, this.filters.ageMin]
 				if (this.filters.popularityMin > this.filters.popularityMax) [this.filters.popularityMin, this.filters.popularityMax] = [this.filters.popularityMax, this.filters.popularityMin]
 				return this.users.filter((u, i) => {
@@ -243,7 +244,9 @@
 							this.map.markers[i + 1].visible = false
 						}
 					}
-					return (u.age >= this.filters.ageMin && u.age <= this.filters.ageMax)
+					return ((u.age >= this.filters.ageMin && u.age <= this.filters.ageMax) &&
+						(u.latitude >= distanceRange.minLong && u.latitude <= distanceRange.maxLong) && (u.longitude >= distanceRange.minLat && u.longitude <= distanceRange.maxLat) &&
+						(u.popularity >= this.filters.popularityMin && u.popularity <= this.filters.popularityMax))
 				})
 			},
 			alert_visible: {
