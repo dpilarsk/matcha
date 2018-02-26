@@ -173,17 +173,20 @@
 					u.address = ''
 				})
 				this.users = response.body.users
-				setTimeout(() => {
-					this.$nextTick().then(() => {
-						this.users.forEach(u => {
-							this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + (u.longitude + ',' + u.latitude) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
-								u.address = response.body.results[1].formatted_address
-							}, () => {
+				this.$nextTick().then(() => {
+					this.users.forEach(u => {
+						this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + (u.longitude + ',' + u.latitude) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
+							response.body.results = response.body.results.filter(a => a.types.indexOf('political') !== -1)
+							if (response.body.results[0] !== undefined) {
+								u.address = response.body.results[0].formatted_address
+							} else {
 								u.address = 'Impossible de trouver l\'adresse.'
-							})
+							}
+						}, () => {
+							u.address = 'Impossible de trouver l\'adresse.'
 						})
 					})
-				}, 0)
+				})
 			}, response => {
 				console.error(response)
 			})
