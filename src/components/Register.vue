@@ -173,6 +173,7 @@
 				passwordRules: [
 					v => !!v || 'Un mot de passe est requis.',
 					v => v.length >= 8 || 'Votre mot de passe doit faire au moins 8 caractères.',
+					v => v.length <= 50 || 'Votre mot de passe ne doit pas faire plus de 50 caractères.',
 					v => v.match('^(?=.*[A-Z])(?=.*\\d)(?=.*[$@$!%*?&])[A-Za-z\\d$@$!%*?&]') !== null || 'Votre mot de passe ne respecte pas le minimum recommandé.'
 				],
 				passwordConfirmRules: [

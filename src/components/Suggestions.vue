@@ -90,7 +90,7 @@
 										:position="m.position"
 										:clickable="true"
 										:draggable="false"
-										:visible="m.visible"
+										:visible="(m.visible)"
 										@click="map.center=m.position"
 									></gmap-marker>
 									<gmap-circle
@@ -179,9 +179,9 @@
 						this.map.markers.push({
 							position: {
 								lat: u.longitude,
-								lng: u.latitude,
-								visible: true
-							}
+								lng: u.latitude
+							},
+							visible: false
 						})
 						this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + (u.longitude + ',' + u.latitude) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
 							response.body.results = response.body.results.filter(a => a.types.indexOf('political') !== -1)
@@ -213,7 +213,6 @@
 			},
 			locate: function () {
 				this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?address=' + (this.map.input.address) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
-					this.map.markers = []
 					this.map.input.lat = response.body.results[0].geometry.location.lat
 					this.map.input.lng = response.body.results[0].geometry.location.lng
 					this.map.markers.push({
@@ -221,7 +220,7 @@
 							lat: response.body.results[0].geometry.location.lat,
 							lng: response.body.results[0].geometry.location.lng
 						},
-						visible: false
+						visible: true
 					})
 					this.map.center = this.map.markers[0].position
 					this.map.input.address = response.body.results[0].formatted_address
@@ -237,16 +236,17 @@
 				if (this.filters.ageMin > this.filters.ageMax) [this.filters.ageMin, this.filters.ageMax] = [this.filters.ageMax, this.filters.ageMin]
 				if (this.filters.popularityMin > this.filters.popularityMax) [this.filters.popularityMin, this.filters.popularityMax] = [this.filters.popularityMax, this.filters.popularityMin]
 				return this.users.filter((u, i) => {
+					let condition = (u.age >= this.filters.ageMin && u.age <= this.filters.ageMax) &&
+						(u.latitude >= distanceRange.minLong && u.latitude <= distanceRange.maxLong) && (u.longitude >= distanceRange.minLat && u.longitude <= distanceRange.maxLat) &&
+						(u.popularity >= this.filters.popularityMin && u.popularity <= this.filters.popularityMax)
 					if (this.map.markers[i + 1]) {
-						if (u.age >= this.filters.ageMin && u.age <= this.filters.ageMax) {
+						if (condition) {
 							this.map.markers[i + 1].visible = true
 						} else {
 							this.map.markers[i + 1].visible = false
 						}
 					}
-					return ((u.age >= this.filters.ageMin && u.age <= this.filters.ageMax) &&
-						(u.latitude >= distanceRange.minLong && u.latitude <= distanceRange.maxLong) && (u.longitude >= distanceRange.minLat && u.longitude <= distanceRange.maxLat) &&
-						(u.popularity >= this.filters.popularityMin && u.popularity <= this.filters.popularityMax))
+					return (condition)
 				})
 			},
 			alert_visible: {
