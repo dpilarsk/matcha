@@ -55,8 +55,8 @@
 							<br>
 							<v-layout row wrap>
 								<v-flex xs12 sm12 md12 lg12 xl6 class="pl-3">
-									Distance maximale: {{ filters.distanceMax }}
-									<v-slider min="0.5" max="150" v-model="filters.distanceMax" step="0.5"></v-slider>
+									Distance maximale: {{ filters.distanceMax / 1000 }}
+									<v-slider min="500" max="150000" v-model="filters.distanceMax" step="500"></v-slider>
 								</v-flex>
 							</v-layout>
 						</v-card>
@@ -90,12 +90,13 @@
 										:position="m.position"
 										:clickable="true"
 										:draggable="false"
-										:visible="(m.visible)"
+										:visible="m.visible"
+										:label="m.user"
 										@click="map.center=m.position"
 									></gmap-marker>
 									<gmap-circle
 										:center="{lat: Number(map.input.lat), lng: Number(map.input.lng)}"
-										:radius="filters.distanceMax * 1000"
+										:radius="filters.distanceMax"
 									></gmap-circle>
 								</gmap-map>
 							</div>
@@ -104,9 +105,15 @@
 				</v-layout>
 				<hr>
 				<br>
-				<v-layout row wrap align-baseline>
-					<v-flex xs12 sm6 md3 class="pl-3 pb-3 pr-3">
-						<v-btn @click="invertSortAge()">Age</v-btn>
+				<v-layout row wrap>
+					<v-flex class="pl-3 pb-3 pr-3">
+						<v-btn :class="sortable.age.color" @click="invertSortAge()">Age <v-icon :class="sortable.age.direction">filter_list</v-icon></v-btn>
+					</v-flex>
+					<v-flex class="pl-3 pb-3 pr-3">
+						<v-btn :class="sortable.popularity.color" @click="invertSortPopularity()">Popularité <v-icon :class="sortable.popularity.direction">filter_list</v-icon></v-btn>
+					</v-flex>
+					<v-flex  class="pl-3 pb-3 pr-3">
+						<v-btn :class="sortable.age.color" @click="invertSortAge()">Age <v-icon :class="sortable.age.direction">filter_list</v-icon></v-btn>
 					</v-flex>
 				</v-layout>
 			</v-card>
@@ -131,6 +138,12 @@
 <!--icon="http://www.themusicrun.com/images/globalhomepage-dot.png"-->
 <!--icon="https://imgrabo.com/design/site/guide/google_map_red_dot_icon.png"-->
 
+<style scoped>
+	.asc {
+		transform: rotate(180deg);
+	}
+</style>
+
 <script>
 	import 'vue-use-vuex'
 	import store from '@/store/UsersStore.js'
@@ -141,6 +154,7 @@
 			return {
 				store: store,
 				users: [],
+				active: false,
 				map: {
 					center: {lng: null, lat: null},
 					zoom: 14,
@@ -159,8 +173,14 @@
 					distanceMax: null
 				},
 				sortable: {
-					age: 'asc',
-					popularity: 'desc'
+					age: {
+						direction: 'asc',
+						color: 'green'
+					},
+					popularity: {
+						direction: 'desc',
+						color: 'red'
+					}
 				}
 			}
 		},
@@ -180,7 +200,6 @@
 			})
 			this.filters.ageMin = (Number(this.store.state.user.age) > 18) ? Number(this.store.state.user.age) - 1 : Number(this.store.state.user.age)
 			this.filters.ageMax = (Number(this.store.state.user.age) < 99) ? Number(this.store.state.user.age) + 1 : Number(this.store.state.user.age)
-			this.filters.distanceMin = (Number(this.store.state.user.max_distance) > 10) ? Number(this.store.state.user.max_distance) - 10 : Number(this.store.state.user.max_distance)
 			this.filters.distanceMax = (Number(this.store.state.user.max_distance) < 140) ? Number(this.store.state.user.max_distance) + 10 : Number(this.store.state.user.max_distance)
 			this.filters.popularityMin = (Number(this.store.state.user.popularity) >= 100) ? Number(this.store.state.user.popularity) - 100 : Number(this.store.state.user.popularity)
 			this.filters.popularityMax = (Number(this.store.state.user.popularity) <= 9900) ? Number(this.store.state.user.popularity) + 100 : Number(this.store.state.user.popularity)
@@ -196,6 +215,7 @@
 								lat: u.longitude,
 								lng: u.latitude
 							},
+							user: u.username,
 							visible: false
 						})
 						this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + (u.longitude + ',' + u.latitude) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
@@ -215,14 +235,23 @@
 			})
 		},
 		methods: {
-			sortArrayByParams: function (x, y) {
-				if (x.popularity > y.popularity) return -1
-				if (x.popularity < y.popularity) return 1
-				return 0
-			},
 			invertSortAge: function () {
-				if (this.sortable.age === 'asc') this.sortable.age = 'desc'
-				else this.sortable.age = 'asc'
+				if (this.sortable.age.direction === 'asc') {
+					this.sortable.age.direction = 'desc'
+					this.sortable.age.color = 'red'
+				} else {
+					this.sortable.age.direction = 'asc'
+					this.sortable.age.color = 'green'
+				}
+			},
+			invertSortPopularity: function () {
+				if (this.sortable.popularity.direction === 'asc') {
+					this.sortable.popularity.direction = 'desc'
+					this.sortable.popularity.color = 'red'
+				} else {
+					this.sortable.popularity.direction = 'asc'
+					this.sortable.popularity.color = 'green'
+				}
 			},
 			getCoordsRange: function (radius, latitude, longitude) {
 				let kmInDegree = 111.320 * Math.cos(latitude / 180.0 * Math.PI)
@@ -256,19 +285,20 @@
 		computed: {
 			usersFiltered () {
 				// TODO: MATCH BY TAGS
-				let distanceRange = this.getCoordsRange(this.filters.distanceMax, this.map.input.lat, this.map.input.lng)
+				let distanceRange = this.getCoordsRange(this.filters.distanceMax / 1000, this.map.input.lat, this.map.input.lng)
 				if (this.filters.ageMin > this.filters.ageMax) [this.filters.ageMin, this.filters.ageMax] = [this.filters.ageMax, this.filters.ageMin]
 				if (this.filters.popularityMin > this.filters.popularityMax) [this.filters.popularityMin, this.filters.popularityMax] = [this.filters.popularityMax, this.filters.popularityMin]
-				let users = this._.orderBy(this.users, ['age'], [this.sortable.age])
+				let users = this._.orderBy(this.users, ['popularity', 'age'], [this.sortable.popularity.direction, this.sortable.age.direction])
 				return users.filter((u, i) => {
 					let condition = (u.age >= this.filters.ageMin && u.age <= this.filters.ageMax) &&
 						(u.latitude >= distanceRange.minLong && u.latitude <= distanceRange.maxLong) && (u.longitude >= distanceRange.minLat && u.longitude <= distanceRange.maxLat) &&
 						(u.popularity >= this.filters.popularityMin && u.popularity <= this.filters.popularityMax)
-					if (this.map.markers[i + 1]) {
+					if (this.map.markers.findIndex(m => m.user === u.username) !== -1) {
+						let i = this.map.markers.findIndex(m => m.user === u.username)
 						if (condition) {
-							this.map.markers[i + 1].visible = true
+							this.map.markers[i].visible = true
 						} else {
-							this.map.markers[i + 1].visible = false
+							this.map.markers[i].visible = false
 						}
 					}
 					return (condition)
