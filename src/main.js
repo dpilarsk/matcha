@@ -12,6 +12,8 @@ import Vuetify from 'vuetify'
 import store from './store/UsersStore.js'
 import 'vuetify/dist/vuetify.min.css'
 import * as VueGoogleMaps from 'vue2-google-maps'
+import lodash from 'lodash'
+import VueLodash from 'vue-lodash'
 
 let options = {
 	namespace: 'matcha__'
@@ -36,6 +38,7 @@ Vue.use(Vuex)
 Vue.use(VueLocalStorage, options)
 Vue.use(VueJWT, {signKey: 'demo', keyName: 'matcha__token'})
 Vue.use(VueResource)
+Vue.use(VueLodash, lodash)
 
 Vue.config.productionTip = false
 

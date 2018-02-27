@@ -102,21 +102,28 @@
 						</v-card>
 					</v-flex>
 				</v-layout>
+				<hr>
+				<br>
+				<v-layout row wrap align-baseline>
+					<v-flex xs12 sm6 md3 class="pl-3 pb-3 pr-3">
+						<v-btn @click="invertSortAge()">Age</v-btn>
+					</v-flex>
+				</v-layout>
 			</v-card>
 		</v-flex>
-		<transition-group tag="div" class="layout row wrap" name="rotate" enter-active-class="bounceInLeft" leave-active-class="">
+		<!--<transition-group tag="div" class="layout row wrap" name="rotate" enter-active-class="bounceInLeft" leave-active-class="">-->
 			<v-flex v-for="(user, index) in usersFiltered" :key="user.id" xs12 md6 lg4 xl2 class="pl-3 pb-3">
 				<v-card color="grey darken-1">
 					<v-card-media :src="user.picture" height="200px"></v-card-media>
 					<v-card-title primary-title>
 						<div>
-							<h3 class="headline mb-0">{{ user.username }} - {{ user.popularity }}</h3>
+							<h3 class="headline mb-0">{{ user.username }} || {{ user.popularity }} || {{ user.age }} ans || {{ user.gender }}</h3>
 							<div>{{ user.address }}</div>
 						</div>
 					</v-card-title>
 				</v-card>
 			</v-flex>
-		</transition-group>
+		<!--</transition-group>-->
 	</v-layout>
 </template>
 
@@ -150,6 +157,10 @@
 					popularityMin: null,
 					popularityMax: null,
 					distanceMax: null
+				},
+				sortable: {
+					age: 'asc',
+					popularity: 'desc'
 				}
 			}
 		},
@@ -209,6 +220,10 @@
 				if (x.popularity < y.popularity) return 1
 				return 0
 			},
+			invertSortAge: function () {
+				if (this.sortable.age === 'asc') this.sortable.age = 'desc'
+				else this.sortable.age = 'asc'
+			},
 			getCoordsRange: function (radius, latitude, longitude) {
 				let kmInDegree = 111.320 * Math.cos(latitude / 180.0 * Math.PI)
 				let deltaLat = radius / 111.1
@@ -244,7 +259,8 @@
 				let distanceRange = this.getCoordsRange(this.filters.distanceMax, this.map.input.lat, this.map.input.lng)
 				if (this.filters.ageMin > this.filters.ageMax) [this.filters.ageMin, this.filters.ageMax] = [this.filters.ageMax, this.filters.ageMin]
 				if (this.filters.popularityMin > this.filters.popularityMax) [this.filters.popularityMin, this.filters.popularityMax] = [this.filters.popularityMax, this.filters.popularityMin]
-				return this.users.sort(this.sortArrayByParams).filter((u, i) => {
+				let users = this._.orderBy(this.users, ['age'], [this.sortable.age])
+				return users.filter((u, i) => {
 					let condition = (u.age >= this.filters.ageMin && u.age <= this.filters.ageMax) &&
 						(u.latitude >= distanceRange.minLong && u.latitude <= distanceRange.maxLong) && (u.longitude >= distanceRange.minLat && u.longitude <= distanceRange.maxLat) &&
 						(u.popularity >= this.filters.popularityMin && u.popularity <= this.filters.popularityMax)
