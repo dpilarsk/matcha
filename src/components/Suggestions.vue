@@ -84,16 +84,18 @@
 									:zoom="map.zoom"
 									style="width: 100%; height: 300px;"
 								>
-									<gmap-marker
-										:key="index"
-										v-for="(m, index) in map.markers"
-										:position="m.position"
-										:clickable="true"
-										:draggable="false"
-										:visible="m.visible"
-										:label="m.user"
-										@click="map.center=m.position"
-									></gmap-marker>
+									<gmap-cluster>
+										<gmap-marker
+											:key="index"
+											v-for="(m, index) in map.markers"
+											:position="m.position"
+											:clickable="true"
+											:draggable="false"
+											:visible="m.visible"
+											:label="m.user"
+											@click="map.center=m.position"
+										></gmap-marker>
+									</gmap-cluster>
 									<gmap-circle
 										:center="{lat: Number(map.input.lat), lng: Number(map.input.lng)}"
 										:radius="filters.distanceMax"
@@ -203,7 +205,7 @@
 			this.filters.distanceMax = (Number(this.store.state.user.max_distance) < 140) ? Number(this.store.state.user.max_distance) + 10 : Number(this.store.state.user.max_distance)
 			this.filters.popularityMin = (Number(this.store.state.user.popularity) >= 100) ? Number(this.store.state.user.popularity) - 100 : Number(this.store.state.user.popularity)
 			this.filters.popularityMax = (Number(this.store.state.user.popularity) <= 9900) ? Number(this.store.state.user.popularity) + 100 : Number(this.store.state.user.popularity)
-			this.$http.get('http://localhost:8081/api/users').then(response => {
+			this.$http.get('http://localhost:8081/api/users?limit=100').then(response => {
 				response.body.users.forEach(u => {
 					u.address = ''
 				})
