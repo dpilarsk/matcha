@@ -11,11 +11,11 @@
 		<v-flex xs12>
 			<v-form v-model="valid">
 				<v-layout row wrap>
-					<v-flex xs12 sm6 md6>
+					<v-flex xs12 sm6 md6 class="pb-1 pr-1">
 						<v-text-field @keyup.enter="valid ? submit() : 0" label="Nom d'utilisateur" v-model="user.login"
 									  :rules="usernameRules" required></v-text-field>
 					</v-flex>
-					<v-flex xs12 sm6 md6>
+					<v-flex xs12 sm6 md6 class="pb-1 pr-1">
 						<v-text-field @keyup.enter="valid ? submit() : 0" label="Mot de passe"
 									  v-model="user.password"
 									  :rules="passwordRules"
