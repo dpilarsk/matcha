@@ -92,9 +92,9 @@
 											:clickable="true"
 											:draggable="false"
 											:visible="m.visible"
-											:label="m.user"
 											@click="map.center=m.position"
-										></gmap-marker>
+										>
+										</gmap-marker>
 									</gmap-cluster>
 									<gmap-circle
 										:center="{lat: Number(map.input.lat), lng: Number(map.input.lng)}"
@@ -205,7 +205,7 @@
 			this.filters.distanceMax = (Number(this.store.state.user.max_distance) < 140) ? Number(this.store.state.user.max_distance) + 10 : Number(this.store.state.user.max_distance)
 			this.filters.popularityMin = (Number(this.store.state.user.popularity) >= 100) ? Number(this.store.state.user.popularity) - 100 : Number(this.store.state.user.popularity)
 			this.filters.popularityMax = (Number(this.store.state.user.popularity) <= 9900) ? Number(this.store.state.user.popularity) + 100 : Number(this.store.state.user.popularity)
-			this.$http.get('http://localhost:8081/api/users?limit=100').then(response => {
+			this.$http.get('http://localhost:8081/api/users?limit=50').then(response => {
 				response.body.users.forEach(u => {
 					u.address = ''
 				})
@@ -270,13 +270,13 @@
 				this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?address=' + (this.map.input.address) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
 					this.map.input.lat = response.body.results[0].geometry.location.lat
 					this.map.input.lng = response.body.results[0].geometry.location.lng
-					this.map.markers.push({
+					this.map.markers[0] = {
 						position: {
 							lat: response.body.results[0].geometry.location.lat,
 							lng: response.body.results[0].geometry.location.lng
 						},
 						visible: true
-					})
+					}
 					this.map.center = this.map.markers[0].position
 					this.map.input.address = response.body.results[0].formatted_address
 				}, response => {
@@ -290,7 +290,7 @@
 				let distanceRange = this.getCoordsRange(this.filters.distanceMax / 1000, this.map.input.lat, this.map.input.lng)
 				if (this.filters.ageMin > this.filters.ageMax) [this.filters.ageMin, this.filters.ageMax] = [this.filters.ageMax, this.filters.ageMin]
 				if (this.filters.popularityMin > this.filters.popularityMax) [this.filters.popularityMin, this.filters.popularityMax] = [this.filters.popularityMax, this.filters.popularityMin]
-				let users = this._.orderBy(this.users, ['popularity', 'age'], [this.sortable.popularity.direction, this.sortable.age.direction])
+				let users = this._.orderBy(this.users, ['age', 'popularity'], [this.sortable.age.direction, this.sortable.popularity.direction])
 				return users.filter((u, i) => {
 					let condition = (u.age >= this.filters.ageMin && u.age <= this.filters.ageMax) &&
 						(u.latitude >= distanceRange.minLong && u.latitude <= distanceRange.maxLong) && (u.longitude >= distanceRange.minLat && u.longitude <= distanceRange.maxLat) &&
