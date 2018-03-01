@@ -119,17 +119,6 @@
 			this.user.last_name = this.store.state.user.last_name
 			this.user.username = this.store.state.user.username
 			this.user.email = this.store.state.user.email
-//			navigator.geolocation.watchPosition(pos => {
-//				_this.user.currentLat = pos.coords.latitude
-//				_this.user.currentLon = pos.coords.longitude
-//			}, e => {
-//				_this.$http.get('//freegeoip.net/json/?callback=').then(response => {
-//					_this.user.currentLat = response.body.latitude
-//					_this.user.currentLon = response.body.longitude
-//				}, response => {
-//					console.error("Impossible de géolocaliser l'utilisateur.")
-//				})
-//			})
 		},
 		computed: {
 			alert_visible: {
@@ -150,7 +139,7 @@
 						_this.$refs['submit'].$el.innerHTML = '<div class="progress-circular progress-circular--indeterminate primary--text" style="height: 32px; width: 32px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="25 25 50 50" style="transform: rotate(0deg);"><circle fill="transparent" cx="50" cy="50" r="20" stroke-width="4" stroke-dasharray="125.664" stroke-dashoffset="125.66370614359172px" class="progress-circular__overlay"></circle></svg><div class="progress-circular__info"></div></div>'
 					}
 				}).then(response => {
-					this.$refs['submit'].$el.innerHTML = 'S\'inscrire'
+					this.$refs['submit'].$el.innerHTML = 'Changer mes informations'
 					this.store.commit('NEW_ALERT', {type: response.body.type, message: response.body.message})
 				}, response => {
 					this.$refs['submit'].$el.innerHTML = 'S\'inscrire'
