@@ -65,7 +65,7 @@
 							required></v-text-field>
 					</v-flex>
 				</v-layout>
-				<v-btn ref="submit" block @click="submit" :disabled="!valid">S'inscrire</v-btn>
+				<v-btn ref="submit" block @click="submit" :disabled="!valid">Changer mes informations</v-btn>
 			</v-form>
 		</v-flex>
 	</v-layout>
@@ -75,7 +75,7 @@
 	import 'vue-use-vuex'
 	import store from '@/store/UsersStore.js'
 	export default {
-		name: 'register',
+		name: 'informations',
 		data () {
 			return {
 				store,
@@ -86,9 +86,7 @@
 					username: '',
 					email: '',
 					password: '',
-					passwordConfirm: '',
-					currentLat: null,
-					currentLon: null
+					passwordConfirm: ''
 				},
 				nameRules: [
 					v => !!v || 'Ce champ est requis.'
@@ -115,19 +113,12 @@
 			}
 		},
 		mounted () {
-			let _this = this
+//			let _this = this
 			if (this.valid) this.valid = false
-			navigator.geolocation.watchPosition(pos => {
-				_this.user.currentLat = pos.coords.latitude
-				_this.user.currentLon = pos.coords.longitude
-			}, e => {
-				_this.$http.get('//freegeoip.net/json/?callback=').then(response => {
-					_this.user.currentLat = response.body.latitude
-					_this.user.currentLon = response.body.longitude
-				}, response => {
-					console.error("Impossible de géolocaliser l'utilisateur.")
-				})
-			})
+			this.user.first_name = this.store.state.user.first_name
+			this.user.last_name = this.store.state.user.last_name
+			this.user.username = this.store.state.user.username
+			this.user.email = this.store.state.user.email
 		},
 		computed: {
 			alert_visible: {
@@ -142,17 +133,17 @@
 		methods: {
 			submit () {
 				let _this = this
-				this.$http.post('http://localhost:8081/api/users', [this.user], {
+				this.$http.patch('http://localhost:8081/api/users', [this.user], {
 					progress (e) {
 						_this.$refs['submit'].$options.propsData['disabled'] = true
 						_this.$refs['submit'].$el.innerHTML = '<div class="progress-circular progress-circular--indeterminate primary--text" style="height: 32px; width: 32px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="25 25 50 50" style="transform: rotate(0deg);"><circle fill="transparent" cx="50" cy="50" r="20" stroke-width="4" stroke-dasharray="125.664" stroke-dashoffset="125.66370614359172px" class="progress-circular__overlay"></circle></svg><div class="progress-circular__info"></div></div>'
 					}
 				}).then(response => {
-					this.$refs['submit'].$el.innerHTML = 'S\'inscrire'
+					this.$refs['submit'].$el.innerHTML = 'Changer mes informations'
 					this.store.commit('NEW_ALERT', {type: response.body.type, message: response.body.message})
 				}, response => {
 					this.$refs['submit'].$el.innerHTML = 'S\'inscrire'
-					this.store.commit('NEW_ALERT', {type: 'error', message: 'Impossible de vous inscrire. Une erreur est survenue.'})
+					this.store.commit('NEW_ALERT', {type: 'error', message: 'Impossible de changer vos informations. Une erreur est survenue.'})
 				})
 			}
 		}

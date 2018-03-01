@@ -41,55 +41,67 @@ connectionPromise.then(() => {
 	})
 })
 
+let getCoordsRange = function (radius, latitude, longitude) {
+	let kmInDegree = 111.320 * Math.cos(latitude / 180.0 * Math.PI)
+	let deltaLat = radius / 111.1
+	let deltaLong = radius / kmInDegree
+
+	let minLat = latitude - deltaLat
+	let maxLat = latitude + deltaLat
+	let minLong = longitude - deltaLong
+	let maxLong = longitude + deltaLong
+	return {minLat, maxLat, minLong, maxLong}
+}
+
 exports.index	=	(req, res) => {
 	connectionPromise
 		.then(() => {
-			if (req.query.pop)
-				req.query.pop = (req.query.pop[0]).split(',')
-			else
-				req.query.pop = []
+			if (req.query.pop) req.query.pop = (req.query.pop).split(',')
+			else req.query.pop = []
 			req.query.pop[0] = req.query.pop[0] || 0
 			req.query.pop[1] = req.query.pop[1] || 9999
 
-			if (req.query.sexual_orientation)
-				req.query.sexual_orientation = (req.query.sexual_orientation[0]).split(',')
-			else
-				req.query.sexual_orientation = []
+			if (!req.query.distance) req.query.distance = 50
+			if (req.query.coords) {
+				req.query.coords = (req.query.coords).split(',')
+				var coords = getCoordsRange(Number(req.query.distance), Number(req.query.coords[1]), Number(req.query.coords[0]))
+			} else {
+				coords = {
+					minLat: -180,
+					maxLat: 180,
+					minLong: -180,
+					maxLong: 180
+				}
+			}
+
+			if (req.query.sexual_orientation) req.query.sexual_orientation = (req.query.sexual_orientation[0]).split(',')
+			else req.query.sexual_orientation = []
 			req.query.sexual_orientation[0] = req.query.sexual_orientation[0] === undefined ? undefined : 'heterosexual'
 			req.query.sexual_orientation[1] = req.query.sexual_orientation[1] === undefined ? undefined : 'bisexual'
 			req.query.sexual_orientation[2] = req.query.sexual_orientation[2] === undefined ? undefined : 'homosexual'
 
-			if (!req.query.limit || isNaN(Number(req.query.limit)) || req.query.limit > 100)
-				req.query.limit = 30
-			else
-				req.query.limit = Number(req.query.limit)
+			if (!req.query.limit || isNaN(Number(req.query.limit)) || req.query.limit > 100) req.query.limit = 30
+			else req.query.limit = Number(req.query.limit)
 
-			if (!req.query.page || isNaN(Number(req.query.page)))
-				req.query.page = 0
-			else
-				req.query.page = Number(req.query.page) - 1
+			if (!req.query.page || isNaN(Number(req.query.page))) req.query.page = 0
+			else req.query.page = Number(req.query.page) - 1
 
-			if (!req.query.sort)
-				req.query.sort = ['id', 'asc']
-			else
-			{
+			if (!req.query.sort) req.query.sort = ['id', 'asc']
+			else {
 				let tab = req.query.sort.split('_', 2)
 				req.query.sort = tab
 			}
 
 			let request = 'SELECT * FROM user WHERE (gender = ? OR ? IS NULL) AND ' +
 				'(sexual_orientation = ? OR sexual_orientation = ? OR sexual_orientation = ? OR ? IS NULL)' +
-				'AND ((popularity BETWEEN ? AND ?) OR ? IS NULL) ORDER BY ' + req.query.sort[0] + ' ' + req.query.sort[1] + ' LIMIT ? OFFSET ?'
+				'AND ((popularity BETWEEN ? AND ?) OR ? IS NULL) AND ((latitude BETWEEN ? AND ?) OR ? is NULL) AND ((longitude BETWEEN ? AND ?) OR ? is NULL) ORDER BY ' + req.query.sort[0] + ' ' + req.query.sort[1] + ' LIMIT ? OFFSET ?'
 			connection.query(request, [req.query.gender, req.query.gender,
 				req.query.sexual_orientation[0], req.query.sexual_orientation[1], req.query.sexual_orientation[2], req.query.sexual_orientation[0],
-				req.query.pop[0], req.query.pop[1], req.query.pop[0], req.query.limit, req.query.page * req.query.limit], (err, response, fields) => {
-				if (err)
-				{
-					message.error(err)
-					res.json({'status': 0})
-				}
-				else
-					res.json({'status': 1, 'users': response})
+				req.query.pop[0], req.query.pop[1], req.query.pop[0], coords.minLat, coords.maxLat, coords.maxLat, coords.minLong, coords.maxLong, coords.maxLong, req.query.limit, req.query.page * req.query.limit], (err, response, fields) => {
+					if (err) {
+						message.error(err)
+						res.json({'status': 0})
+					} else res.json({'status': 1, 'users': response})
 			})
 		})
 		.catch(err => {

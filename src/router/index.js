@@ -4,6 +4,9 @@ import HelloWorld from '@/components/HelloWorld'
 import Register from '@/components/Register'
 import Login from '@/components/Login'
 import Confirm from '@/components/Confirm'
+import Suggestions from '@/components/Suggestions'
+import Informations from '@/components/Informations'
+import Account from '@/components/Account'
 
 Vue.use(Router)
 
@@ -13,26 +16,65 @@ export default new Router({
 		{
 			path: '/',
 			name: 'HelloWorld',
-			component: HelloWorld
+			component: HelloWorld,
+			meta: {
+				requireAuth: true
+			}
 		},
 		{
 			path: '/register',
 			name: 'Register',
-			component: Register
+			component: Register,
+			meta: {
+				requireAuth: false
+			}
 		},
 		{
 			path: '/confirm/:token',
 			name: 'Confirm',
-			component: Confirm
+			component: Confirm,
+			meta: {
+				requireAuth: false
+			}
+		},
+		{
+			path: '/suggestions',
+			name: 'Suggestions',
+			component: Suggestions,
+			meta: {
+				requireAuth: true
+			}
+		},
+		{
+			path: '/informations',
+			name: 'Informations',
+			component: Informations,
+			meta: {
+				requireAuth: true
+			}
+		},
+		{
+			path: '/account',
+			name: 'Account',
+			component: Account,
+			meta: {
+				requireAuth: true
+			}
 		},
 		{
 			path: '/login',
 			name: 'Login',
-			component: Login
+			component: Login,
+			meta: {
+				requireAuth: false
+			}
 		},
 		{
 			path: '/logout',
-			name: 'Logout'
+			name: 'Logout',
+			meta: {
+				requireAuth: true
+			}
 		}
 	]
 })

@@ -11,13 +11,22 @@ import App from './App'
 import Vuetify from 'vuetify'
 import store from './store/UsersStore.js'
 import 'vuetify/dist/vuetify.min.css'
+import * as VueGoogleMaps from 'vue2-google-maps'
+import lodash from 'lodash'
+import VueLodash from 'vue-lodash'
 
 let options = {
 	namespace: 'matcha__'
 }
 
+Vue.use(VueGoogleMaps, {
+	load: {
+		key: 'AIzaSyATVRR2IIe6FF5KxTw5keIVQkFaOibX468',
+		libraries: 'places,drawing,visualization'
+	}
+})
 Vue.use(Vuetify, { theme: {
-	primary: '#ee44aa',
+	primary: '#00B0FF',
 	secondary: '#424242',
 	accent: '#82B1FF',
 	error: '#FF5252',
@@ -29,44 +38,59 @@ Vue.use(Vuex)
 Vue.use(VueLocalStorage, options)
 Vue.use(VueJWT, {signKey: 'demo', keyName: 'matcha__token'})
 Vue.use(VueResource)
+Vue.use(VueLodash, lodash)
 
 Vue.config.productionTip = false
 
 router.beforeEach((to, from, next) => {
-	if (!Vue.ls.get('token')) {
-		if (store.state.logged === true) store.commit('LOGOUT')
-		if ((to.name === 'Login' || to.name === 'Register') || to.name === 'Confirm') next()
-		else next('/login')
-	} else {
+	if (to.meta.requireAuth) {
 		if (Vue.$jwt.getToken() !== null) {
 			let token = JSON.parse(Vue.$jwt.getToken()).value
-			if (token) {
-				let valid = Vue.$jwt.decode(token)
-				if (valid !== null) {
-					if (to.path === '/logout') {
-						Vue.ls.remove('token')
-						store.commit('DELETE_USER')
-						if (store.state.logged === true) store.commit('LOGOUT')
-						next('/login')
-					} else if ((to.path === '/login' || to.path === '/register')) {
-						if (store.state.logged === false) store.commit('LOGIN')
-						next('/')
-					} else {
-						if (store.state.logged === false) store.commit('LOGIN')
-						next()
-					}
+			if (token && store.state.user === null) {
+				if ((Vue.$jwt.decode(token)) !== null) {
+					store.commit('CREATE_USER', Vue.$jwt.decode(JSON.parse(Vue.$jwt.getToken()).value).user)
+					store.commit('LOGIN')
 				} else {
 					Vue.ls.remove('token')
 					if (store.state.logged === true) store.commit('LOGOUT')
 					next('/login')
 				}
+			}
+		}
+		if (to.name === 'Logout') {
+			console.log('TTT')
+			Vue.ls.remove('token')
+			if (store.state.logged === true) store.commit('LOGOUT')
+			store.commit('DELETE_USER')
+			next('/login')
+		} else if (!Vue.ls.get('token')) {
+			if (store.state.logged === true) store.commit('LOGOUT')
+			store.commit('DELETE_USER')
+			next('/login')
+		} else if (Vue.$jwt.getToken() !== null) {
+			let token = JSON.parse(Vue.$jwt.getToken()).value
+			if (token) {
+				if ((Vue.$jwt.decode(token)) !== null) next()
+				else {
+					Vue.ls.remove('token')
+					store.commit('DELETE_USER')
+					if (store.state.logged === true) store.commit('LOGOUT')
+					next('/login')
+				}
 			} else {
 				Vue.ls.remove('token')
+				store.commit('DELETE_USER')
 				if (store.state.logged === true) store.commit('LOGOUT')
 				next('/login')
 			}
 		} else next('/login')
-	}
+	} else if (!to.meta.requireAuth && (to.name === 'Login' || to.name === 'Register')) {
+		if (Vue.ls.get('token')) {
+			if (store.state.logged === false) store.commit('LOGIN')
+			if (store.state.user === null) store.commit('CREATE_USER', Vue.$jwt.decode(JSON.parse(Vue.$jwt.getToken()).value).user)
+			next('/')
+		} else next()
+	} else next()
 })
 
 /* eslint-disable no-new */

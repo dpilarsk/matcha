@@ -31,7 +31,7 @@ module.exports = (() => {
 			x	= w * Math.cos(t),
 			y	= w * Math.sin(t),
 			xp	= x / Math.cos(y0)
-		return { 'lat': y + y0, 'lng': xp + x0 }
+		return { 'lng': y + y0, 'lat': xp + x0 }
 	}
 
 	let randomDate = (start, end) => {
@@ -49,8 +49,8 @@ module.exports = (() => {
 		sexual_orientation = getSexualOrientation(),
 		password = bcrypt.hashSync('test', 2),
 		status = Math.floor(Math.random()*(1-0+1)+0),
-		longitude = coords.lng,
-		latitude = coords.lat,
+		longitude = genCoords.lng,
+		latitude = genCoords.lat,
 		distance = 50,
 		popularity = Math.floor(Math.random()*(9999-0+1)+0),
 		role = 'user',

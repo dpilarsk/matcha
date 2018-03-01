@@ -38,6 +38,14 @@
 				</div>
 
 				<div v-else>
+					<router-link :to="{name: 'Suggestions'}" exact tag="v-list-tile">
+						<v-list-tile-action>
+							<v-icon>home</v-icon>
+						</v-list-tile-action>
+						<v-list-tile-content>
+							<v-list-tile-title>Découvertes</v-list-tile-title>
+						</v-list-tile-content>
+					</router-link>
 					<router-link :to="{name: 'Logout'}" exact tag="v-list-tile">
 						<v-list-tile-action>
 							<v-icon>play_for_work</v-icon>
@@ -49,18 +57,22 @@
 					<v-subheader>
 						Mon compte
 					</v-subheader>
-					<v-list-tile
-						v-for="(item, i) in items2"
-						@click=""
-						:key="i + '__account'"
-					>
+					<router-link :to="{name: 'Informations'}" exact tag="v-list-tile">
 						<v-list-tile-action>
-							<v-icon v-html="item.icon"></v-icon>
+							<v-icon>info</v-icon>
 						</v-list-tile-action>
 						<v-list-tile-content>
-							<v-list-tile-title v-text="item.title"></v-list-tile-title>
+							<v-list-tile-title>Mes informations</v-list-tile-title>
 						</v-list-tile-content>
-					</v-list-tile>
+					</router-link>
+					<router-link :to="{name: 'Account'}" exact tag="v-list-tile">
+						<v-list-tile-action>
+							<v-icon>account_circle</v-icon>
+						</v-list-tile-action>
+						<v-list-tile-content>
+							<v-list-tile-title>Mon compte</v-list-tile-title>
+						</v-list-tile-content>
+					</router-link>
 					<v-subheader>
 						Mes messages
 					</v-subheader>
@@ -92,7 +104,7 @@
 			<v-container fluid>
 				<v-slide-y-transition mode="out-in">
 					<v-layout row wrap>
-						<router-view></router-view>
+						<router-view transition="fade-transition"></router-view>
 					</v-layout>
 				</v-slide-y-transition>
 			</v-container>
