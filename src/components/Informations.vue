@@ -11,14 +11,14 @@
 		<v-flex xs12>
 			<v-form v-model="valid">
 				<v-layout row wrap>
-					<v-flex xs12 sm6 md6>
+					<v-flex xs12 sm6 md6 class="pb-1 pr-1">
 						<v-text-field
 							label="Prénom"
 							v-model="user.first_name"
 							:rules="nameRules"
 							required></v-text-field>
 					</v-flex>
-					<v-flex xs12 sm6 md6>
+					<v-flex xs12 sm6 md6 class="pb-1 pr-1">
 						<v-text-field
 							label="Nom"
 							v-model="user.last_name"
@@ -27,7 +27,7 @@
 					</v-flex>
 				</v-layout>
 				<v-layout row wrap>
-					<v-flex xs12 sm6 md6>
+					<v-flex xs12 sm6 md6 class="pb-1 pr-1">
 						<v-text-field
 							label="Nom d'utilisateur"
 							v-model="user.username"
@@ -35,7 +35,7 @@
 							:counter="12"
 							required></v-text-field>
 					</v-flex>
-					<v-flex xs12 sm6 md6>
+					<v-flex xs12 sm6 md6 class="pb-1 pr-1">
 						<v-text-field
 							label="Adresse E-mail"
 							v-model="user.email"
@@ -45,7 +45,7 @@
 					</v-flex>
 				</v-layout>
 				<v-layout row wrap>
-					<v-flex xs12 sm6 md6>
+					<v-flex xs12 sm6 md6 class="pb-1 pr-1">
 						<v-text-field
 							label="Mot de passe"
 							v-model="user.password"
@@ -55,7 +55,7 @@
 							type="password"
 							required></v-text-field>
 					</v-flex>
-					<v-flex xs12 sm6 md6>
+					<v-flex xs12 sm6 md6 class="pb-1 pr-1">
 						<v-text-field
 							label="Confirmation du mot de passe"
 							v-model="user.passwordConfirm"
