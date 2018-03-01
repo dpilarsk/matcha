@@ -45,36 +45,6 @@
 					</v-flex>
 				</v-layout>
 				<v-layout row wrap>
-					<v-flex xs6 sm4 md4>
-						<v-text-field
-							label="Age"
-							v-model="user.age"
-							:rules="ageRules"
-							type="number"
-							required></v-text-field>
-					</v-flex>
-					<v-flex xs6 sm4 md4>
-						<v-select
-							:items="gender"
-							v-model="user.gender"
-							label="Votre sexe ?"
-							signel-line
-							:rules="genderRules"
-							bottom
-							required></v-select>
-					</v-flex>
-					<v-flex xs12 sm4 md4>
-						<v-select
-							:items="orientation"
-							v-model="user.orientation"
-							label="Votre orientation sexuelle ?"
-							signel-line
-							:rules="orientationRules"
-							bottom
-							required></v-select>
-					</v-flex>
-				</v-layout>
-				<v-layout row wrap>
 					<v-flex xs12 sm6 md6>
 						<v-text-field
 							label="Mot de passe"
@@ -110,42 +80,15 @@
 			return {
 				store,
 				valid: false,
-				gender: [
-					{
-						value: 'man',
-						text: 'Homme'
-					},
-					{
-						value: 'woman',
-						text: 'Femme'
-					}
-				],
-				orientation: [
-					{
-						value: 'heterosexual',
-						text: 'Hétérosexuel(le)'
-					},
-					{
-						value: 'homosexual',
-						text: 'Homosexuel(le)'
-					},
-					{
-						value: 'bisexual',
-						text: 'Bisexuel(le)'
-					}
-				],
 				user: {
 					first_name: '',
 					last_name: '',
 					username: '',
 					email: '',
-					age: 18,
 					password: '',
 					passwordConfirm: '',
 					currentLat: null,
-					currentLon: null,
-					gender: null,
-					orientation: null
+					currentLon: null
 				},
 				nameRules: [
 					v => !!v || 'Ce champ est requis.'
@@ -158,17 +101,6 @@
 				emailRules: [
 					v => !!v || 'Votre email est requis.',
 					v => v.match('^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$') !== null || 'Votre adresse email est invalide.'
-				],
-				ageRules: [
-					v => !!v || 'Votre age est requis',
-					v => v >= 18 || 'Vous devez avoir au moins 18 ans pour vous inscrire.',
-					v => v <= 99 || 'Vous ne devez pas avoir plus de 99 ans pour vous inscrire.'
-				],
-				genderRules: [
-					v => !!v || 'Votre sexe est requis.'
-				],
-				orientationRules: [
-					v => !!v || 'Votre orientation sexuelle est requise.'
 				],
 				passwordRules: [
 					v => !!v || 'Un mot de passe est requis.',
