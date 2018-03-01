@@ -5,6 +5,7 @@ import Register from '@/components/Register'
 import Login from '@/components/Login'
 import Confirm from '@/components/Confirm'
 import Suggestions from '@/components/Suggestions'
+import Informations from '@/components/Informations'
 
 Vue.use(Router)
 
@@ -39,6 +40,14 @@ export default new Router({
 			path: '/suggestions',
 			name: 'Suggestions',
 			component: Suggestions,
+			meta: {
+				requireAuth: true
+			}
+		},
+		{
+			path: '/informations',
+			name: 'Informations',
+			component: Informations,
 			meta: {
 				requireAuth: true
 			}

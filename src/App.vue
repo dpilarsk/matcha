@@ -57,18 +57,14 @@
 					<v-subheader>
 						Mon compte
 					</v-subheader>
-					<v-list-tile
-						v-for="(item, i) in items2"
-						@click=""
-						:key="i + '__account'"
-					>
+					<router-link :to="{name: 'Informations'}" exact tag="v-list-tile">
 						<v-list-tile-action>
-							<v-icon v-html="item.icon"></v-icon>
+							<v-icon>info</v-icon>
 						</v-list-tile-action>
 						<v-list-tile-content>
-							<v-list-tile-title v-text="item.title"></v-list-tile-title>
+							<v-list-tile-title>Mes informations</v-list-tile-title>
 						</v-list-tile-content>
-					</v-list-tile>
+					</router-link>
 					<v-subheader>
 						Mes messages
 					</v-subheader>
