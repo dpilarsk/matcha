@@ -6,6 +6,7 @@ import Login from '@/components/Login'
 import Confirm from '@/components/Confirm'
 import Suggestions from '@/components/Suggestions'
 import Informations from '@/components/Informations'
+import Account from '@/components/Account'
 
 Vue.use(Router)
 
@@ -48,6 +49,14 @@ export default new Router({
 			path: '/informations',
 			name: 'Informations',
 			component: Informations,
+			meta: {
+				requireAuth: true
+			}
+		},
+		{
+			path: '/account',
+			name: 'Account',
+			component: Account,
 			meta: {
 				requireAuth: true
 			}
