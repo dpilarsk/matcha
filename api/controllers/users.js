@@ -3,6 +3,68 @@ const path		=	require('path'),
 
 let queryPromise = tool.dbLink()
 
+function getUser (req, res) {
+	function queryFailed (msg) {
+		tool.err(res, msg)
+	}
+	function returnUserList (response) {
+		tool.suc(res, response)
+	}
+	if (req.query.pop) {
+		req.query.pop = (req.query.pop[0]).split(',')
+	} else {
+		req.query.pop = []
+	}
+	req.query.pop[0] = req.query.pop[0] || 0
+	req.query.pop[1] = req.query.pop[1] || 9999
+
+	if (req.query.sexual_orientation) {
+		req.query.sexual_orientation = (req.query.sexual_orientation[0]).split(',')
+	} else {
+		req.query.sexual_orientation = []
+	}
+	// TODO Why this 3 lines below ?
+	req.query.sexual_orientation[0] = req.query.sexual_orientation[0] === undefined ? undefined : 'heterosexual'
+	req.query.sexual_orientation[1] = req.query.sexual_orientation[1] === undefined ? undefined : 'bisexual'
+	req.query.sexual_orientation[2] = req.query.sexual_orientation[2] === undefined ? undefined : 'homosexual'
+
+	if (!req.query.limit || isNaN(Number(req.query.limit)) || req.query.limit > 100) {
+		req.query.limit = 30
+	} else {
+		req.query.limit = Number(req.query.limit)
+	}
+
+	if (!req.query.page || isNaN(Number(req.query.page))) {
+		req.query.page = 0
+	} else {
+		req.query.page = Number(req.query.page) - 1
+	}
+	if (!req.query.sort) {
+		req.query.sort = ['id', 'asc']
+	} else {
+		// TODO why there is a tmp var ?
+		let tab = req.query.sort.split('_', 2)
+		req.query.sort = tab
+	}
+	queryPromise.then(() => {
+		tool.dbQuery(
+			'SELECT * ' +
+			'FROM user ' +
+			'WHERE ' +
+			'(gender = ? OR ? IS NULL) AND ' +
+			'(sexual_orientation = ? OR sexual_orientation = ? OR sexual_orientation = ? OR ? IS NULL) AND ' +
+			'((popularity BETWEEN ? AND ?) OR ? IS NULL) ORDER BY ' + req.query.sort[0] + ' ' + req.query.sort[1] + ' LIMIT ? OFFSET ?',
+			[req.query.gender, req.query.gender,
+				req.query.sexual_orientation[0], req.query.sexual_orientation[1], req.query.sexual_orientation[2], req.query.sexual_orientation[0],
+				req.query.pop[0], req.query.pop[1], req.query.pop[0], req.query.limit, req.query.page * req.query.limit],
+			returnUserList
+		)
+	}).catch(err => {
+		tool.dispError(err)
+		queryFailed('Request failed')
+	})
+}
+
 // TODO same for adding profile
 function insertNewUser (req, res) {
 	function queryFailed (msg) {
@@ -64,24 +126,6 @@ function insertNewUser (req, res) {
 			tool.dispError(err)
 			queryFailed('Request failed')
 		})
-
-		// bcrypt.genSalt(10, function (err, salt) {
-		// 	if (err) return queryFailed('Wrong data sent')
-		// 	bcrypt.hash(param.password, salt, function (err, hash) {
-		// 		if (err) return queryFailed('Wrong data sent')
-		// 		queryPromise.then(() => {
-		// 			tool.dbQuery(
-		// 				'INSERT INTO `user` (`username`, `first_name`, `last_name`, `password`, `email`)' +
-		// 				'VALUES (?, ?, ?, ?, ?)',
-		// 				[param.username, param.firstName, param.lastName, hash, param.email],
-		// 				sendMail
-		// 			)
-		// 		}).catch(err => {
-		// 			tool.dispError(err)
-		// 			queryFailed('Request failed')
-		// 		})
-		// 	})
-		// })
 	}
 
 	let param = req.body[0]
@@ -223,6 +267,7 @@ function deleteMyAccount (req, res) {
 }
 
 module.exports = {
+	index: getUser,
 	create: insertNewUser,
 	login: logIn,
 	read: getMyUserProfile,
@@ -244,7 +289,7 @@ const	mysql		=	require('mysql2'),
 	})
 
 // TODO Tools here
-let connectionPromise = new Promise(function (resolve, reject) {_
+let connectionPromise = new Promise(function (resolve, reject) {
 	connection.connect(err => {
 		if (err) {
 			reject(err)
@@ -256,7 +301,7 @@ let connectionPromise = new Promise(function (resolve, reject) {_
 })
 
 let transporter = nodemailer.createTransport({
-	port: 1025,	
+	port: 1025,
 	ignoreTLS: true
 })
 
@@ -330,67 +375,67 @@ exports.index	=	(req, res) => {
 		})
 }
 
-exports.create	=	(req, res) => {
-	if (!req.body[0] || !req.body[0].first_name || !req.body[0].last_name
-		|| !req.body[0].username ||(!req.body[0].email || (req.body[0].email.match('^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$') === null)) || (!req.body[0].age || req.body[0].age < 18 || req.body[0].age > 99)
-		|| !req.body[0].gender || !req.body[0].orientation
-		|| (!req.body[0].password || (req.body[0].password).match('^(?=.*[A-Z])(?=.*\\d)(?=.*[$@$!%*?&])[A-Za-z\\d$@$!%*?&]') === null)) {
-		res.json({'status': 0, type: 'error', 'message': 'Un des champs est manquant ou erroné.'})
-	} else {
-		connectionPromise.then(() => {
-			connection.query('SELECT username, email FROM user WHERE username = ? OR email = ?', [req.body[0].username, req.body[0].email], (err, response) => {
-				if (err) {
-					message.error(err)
-					res.json({'status': 0, type: 'error', 'message': 'Une erreur est survenue.'})
-				}
-				else if (response.length !== 0) res.json({'status': 0, type: 'error', 'message': 'Le nom d\'utilisateur ou l\'email est déjà utilisé.'})
-				else
-				{
-					bcrypt.genSalt(10, function(err, salt) {
-						bcrypt.hash(req.body[0].password, salt, function(err, hash) {
-							bcrypt.hash(Date.now() + req.body[0].username, 10, function(err, token) {
-								let pass = hash
-								let token1 = token.split('/').join('').split('.').join('')
-								connection.query('INSERT INTO user (first_name, last_name, username, email, password, age, gender, sexual_orientation, latitude, longitude, token) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-									[req.body[0].first_name, req.body[0].last_name, req.body[0].username, req.body[0].email, pass, req.body[0].age, req.body[0].gender, req.body[0].orientation, req.body[0].currentLat,
-										req.body[0].currentLon, token1], (err, result) => {
-											if (err) {
-												message.error(err)
-												res.json({'status': 0, type: 'error', 'message': 'Une erreur est survenue.'})
-											}
-											else {
-												let mail = {
-													from: 'meeting@matcha.fr',
-													to: req.body[0].email,
-													subject: 'Confirmer votre compte sur Matcha !',
-													html:
-													'<h1>Bienvenue sur Matcha</h1>' +
-													'<p>Veuillez confirmer votre compte en cliquant juste en dessous.</p><br>' +
-													'<a href="http://localhost:8080/confirm/' + token1 + '">Valider mon compte</a>'
-												}
-												transporter.sendMail(mail, (error, info) => {
-													if (err)
-													{
-														message.error(err)
-														res.json({'status': 0, type: 'error', 'message': 'Une erreur est survenue durant l\'envoi de l\'email.'})
-													}
-													else
-														res.json({'status': 1, type: 'success', 'message': 'Votre compte à bien été crée, veuillez consulter votre boite mail.'})
-												})
-											}
-										})
-							})
-						})
-					})
-				}
-			})
-		})
-			.catch(err => {
-				message.error('Connexion au serveur MySQL échouée:\n' + err)
-				res.json({'status': 0})
-			})
-	}
-}
+// exports.create	=	(req, res) => {
+// 	if (!req.body[0] || !req.body[0].first_name || !req.body[0].last_name
+// 		|| !req.body[0].username ||(!req.body[0].email || (req.body[0].email.match('^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$') === null)) || (!req.body[0].age || req.body[0].age < 18 || req.body[0].age > 99)
+// 		|| !req.body[0].gender || !req.body[0].orientation
+// 		|| (!req.body[0].password || (req.body[0].password).match('^(?=.*[A-Z])(?=.*\\d)(?=.*[$@$!%*?&])[A-Za-z\\d$@$!%*?&]') === null)) {
+// 		res.json({'status': 0, type: 'error', 'message': 'Un des champs est manquant ou erroné.'})
+// 	} else {
+// 		connectionPromise.then(() => {
+// 			connection.query('SELECT username, email FROM user WHERE username = ? OR email = ?', [req.body[0].username, req.body[0].email], (err, response) => {
+// 				if (err) {
+// 					message.error(err)
+// 					res.json({'status': 0, type: 'error', 'message': 'Une erreur est survenue.'})
+// 				}
+// 				else if (response.length !== 0) res.json({'status': 0, type: 'error', 'message': 'Le nom d\'utilisateur ou l\'email est déjà utilisé.'})
+// 				else
+// 				{
+// 					bcrypt.genSalt(10, function(err, salt) {
+// 						bcrypt.hash(req.body[0].password, salt, function(err, hash) {
+// 							bcrypt.hash(Date.now() + req.body[0].username, 10, function(err, token) {
+// 								let pass = hash
+// 								let token1 = token.split('/').join('').split('.').join('')
+// 								connection.query('INSERT INTO user (first_name, last_name, username, email, password, age, gender, sexual_orientation, latitude, longitude, token) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+// 									[req.body[0].first_name, req.body[0].last_name, req.body[0].username, req.body[0].email, pass, req.body[0].age, req.body[0].gender, req.body[0].orientation, req.body[0].currentLat,
+// 										req.body[0].currentLon, token1], (err, result) => {
+// 											if (err) {
+// 												message.error(err)
+// 												res.json({'status': 0, type: 'error', 'message': 'Une erreur est survenue.'})
+// 											}
+// 											else {
+// 												let mail = {
+// 													from: 'meeting@matcha.fr',
+// 													to: req.body[0].email,
+// 													subject: 'Confirmer votre compte sur Matcha !',
+// 													html:
+// 													'<h1>Bienvenue sur Matcha</h1>' +
+// 													'<p>Veuillez confirmer votre compte en cliquant juste en dessous.</p><br>' +
+// 													'<a href="http://localhost:8080/confirm/' + token1 + '">Valider mon compte</a>'
+// 												}
+// 												transporter.sendMail(mail, (error, info) => {
+// 													if (err)
+// 													{
+// 														message.error(err)
+// 														res.json({'status': 0, type: 'error', 'message': 'Une erreur est survenue durant l\'envoi de l\'email.'})
+// 													}
+// 													else
+// 														res.json({'status': 1, type: 'success', 'message': 'Votre compte à bien été crée, veuillez consulter votre boite mail.'})
+// 												})
+// 											}
+// 										})
+// 							})
+// 						})
+// 					})
+// 				}
+// 			})
+// 		})
+// 			.catch(err => {
+// 				message.error('Connexion au serveur MySQL échouée:\n' + err)
+// 				res.json({'status': 0})
+// 			})
+// 	}
+// }
 
 // exports.login	=	(req, res) => {
 // 	if (!req.body[0] || !req.body[0].login || !req.body[0].password)
