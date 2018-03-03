@@ -113,7 +113,6 @@
 			}
 		},
 		mounted () {
-//			let _this = this
 			if (this.valid) this.valid = false
 			this.user.first_name = this.store.state.user.first_name
 			this.user.last_name = this.store.state.user.last_name
