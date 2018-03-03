@@ -9,9 +9,9 @@
 			{{ this.store.state.alert.message }}
 		</v-alert>
 		<v-flex xs12>
-			<v-card>
+			<v-card class="pb-2 pt-2">
 				<v-layout row wrap>
-					<v-flex xs12 md4 lg6 xl4>
+					<v-flex xs12 md4 lg6 xl4 class="pl-1 pr-1">
 						<v-carousel>
 							<v-carousel-item
 								src="http://lorempicsum.com/nemo/255/200/2"
@@ -100,6 +100,9 @@
 												</v-flex>
 												<v-flex xs12>
 													<h3 class="pr-1">Homme Heterosexuel</h3>
+												</v-flex>
+												<v-flex xs12>
+													<v-select label="tags"></v-select>
 												</v-flex>
 											</v-layout>
 										</v-flex>
