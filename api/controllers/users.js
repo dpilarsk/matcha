@@ -129,7 +129,7 @@ function insertNewUser (req, res) {
 		if (response === undefined || response.length !== 1) {
 			queryFailed('Failed to execute request')
 		}
-		let hash = bcrypt.hashSync(Date.now() + param.username, 10) // Async is useless in a already async function
+		let hash = bcrypt.hashSync(Date.now() + param.username, 10).replace(/\//g, '') // Async is useless in a already async function
 		function sendMail () {
 			// let token1 = encodeURI(token) // token.split('/').join('').split('.').join('')
 			let link = 'http://localhost:8080/confirm/' + encodeURI(hash) // TODO not localhost

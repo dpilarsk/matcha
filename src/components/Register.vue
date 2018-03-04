@@ -100,7 +100,7 @@
 				],
 				emailRules: [
 					v => !!v || 'Votre email est requis.',
-					v => v.match('^[A-Za-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,4}$') !== null || 'Votre adresse email est invalide.'
+					v => v.match('^[A-Za-z0-9\\._%+-]+@[a-z0-9\\.-]+\\.[a-z]{2,4}$') !== null || 'Votre adresse email est invalide.'
 				],
 				passwordRules: [
 					v => !!v || 'Un mot de passe est requis.',

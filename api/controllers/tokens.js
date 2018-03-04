@@ -31,7 +31,7 @@ exports.read	=	(req, res) => {
 	}
 	queryPromise.then(() => {
 		tool.dbQuery(
-			'SELECT `user`.`ID` `user`.`status` ' +
+			'SELECT `user`.`ID`, `user`.`status` ' +
 			'FROM `user` ' +
 			'INNER JOIN `token` ON `token`.`user_ID` = `user`.`ID` ' +
 			'WHERE `token` = ?',
