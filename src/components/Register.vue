@@ -96,7 +96,7 @@
 				],
 				usernameRules: [
 					v => !!v || 'Un nom d\'utilisateur est requis.',
-					v => v.length >= 4 || 'Votre nom d\'utilisateur doit comporter au moins 3 caractères.',
+					v => v.length >= 5 || 'Votre nom d\'utilisateur doit comporter au moins 5 caractères.',
 					v => v.length <= 20 || 'Votre nom d\'utilisateur ne doit pas comporter plus de 12 caractères.',
 					v => v.match('^[a-zA-Z][a-zA-Z0-9-_\\.]{4,20}$') !== null || 'Votre nom d\'utilisateur est invalide.'
 				],

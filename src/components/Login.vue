@@ -40,9 +40,7 @@
 				valid: false,
 				user: {
 					login: '',
-					password: '',
-					currentLat: null,
-					currentLon: null
+					password: ''
 				},
 				usernameRules: [
 					v => !!v || 'Ce champ est requis.'
@@ -52,21 +50,7 @@
 				]
 			}
 		},
-		mounted () {
-			let _this = this
-			if (this.valid) this.valid = false
-			navigator.geolocation.watchPosition(pos => {
-				_this.user.currentLat = pos.coords.latitude
-				_this.user.currentLon = pos.coords.longitude
-			}, e => {
-				_this.$http.get('//freegeoip.net/json/?callback=').then(response => {
-					_this.user.currentLat = response.body.latitude
-					_this.user.currentLon = response.body.longitude
-				}, response => {
-					console.error("Impossible de géolocaliser l'utilisateur.")
-				})
-			})
-		},
+		mounted () {},
 		computed: {
 			alert_visible: {
 				get () {
@@ -93,11 +77,14 @@
 						this.store.commit('CREATE_USER', this.$jwt.decode(response.body.token).user)
 						setTimeout(function () {
 							_this.store.commit('DISMISS')
-							_this.$router.push('/')
 						}, 2000)
+						_this.$router.push({ name: 'Informations' })
 					}
 					this.$refs['submit'].$el.innerHTML = 'Se connecter'
 					this.store.commit('NEW_ALERT', {type: response.body.type, message: response.body.message})
+					setTimeout(function () {
+						_this.store.commit('DISMISS')
+					}, 2000)
 				}, response => {
 					this.$refs['submit'].$el.innerHTML = 'Se connecter'
 					this.store.commit('NEW_ALERT', {type: 'error', message: 'Impossible de vous inscrire. Une erreur est survenue.'})
