@@ -113,7 +113,6 @@
 			}
 		},
 		mounted () {
-//			let _this = this
 			if (this.valid) this.valid = false
 			this.user.first_name = this.store.state.user.first_name
 			this.user.last_name = this.store.state.user.last_name
@@ -141,9 +140,15 @@
 				}).then(response => {
 					this.$refs['submit'].$el.innerHTML = 'Changer mes informations'
 					this.store.commit('NEW_ALERT', {type: response.body.type, message: response.body.message})
+					setTimeout(function () {
+						_this.store.commit('DISMISS')
+					}, 2000)
 				}, response => {
 					this.$refs['submit'].$el.innerHTML = 'S\'inscrire'
 					this.store.commit('NEW_ALERT', {type: 'error', message: 'Impossible de changer vos informations. Une erreur est survenue.'})
+					setTimeout(function () {
+						_this.store.commit('DISMISS')
+					}, 2000)
 				})
 			}
 		}

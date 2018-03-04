@@ -58,7 +58,6 @@ router.beforeEach((to, from, next) => {
 			}
 		}
 		if (to.name === 'Logout') {
-			console.log('TTT')
 			Vue.ls.remove('token')
 			if (store.state.logged === true) store.commit('LOGOUT')
 			store.commit('DELETE_USER')
