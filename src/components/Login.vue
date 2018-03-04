@@ -5,8 +5,8 @@
 			transition="scale-transition"
 			dismissible
 			v-model="alert_visible"
+			v-html="this.store.state.alert.message"
 		>
-			{{ this.store.state.alert.message }}
 		</v-alert>
 		<v-flex xs12>
 			<v-form v-model="valid">
@@ -101,6 +101,9 @@
 				}, response => {
 					this.$refs['submit'].$el.innerHTML = 'Se connecter'
 					this.store.commit('NEW_ALERT', {type: 'error', message: 'Impossible de vous inscrire. Une erreur est survenue.'})
+					setTimeout(function () {
+						_this.store.commit('DISMISS')
+					}, 2000)
 				})
 			}
 		}

@@ -5,8 +5,8 @@
 			transition="scale-transition"
 			dismissible
 			v-model="alert_visible"
+			v-html="this.store.state.alert.message"
 		>
-			{{ this.store.state.alert.message }}
 		</v-alert>
 		<v-flex xs12>
 			<h1 class="text-xs-center">Mon compte</h1>

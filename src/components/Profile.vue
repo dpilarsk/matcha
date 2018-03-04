@@ -3,10 +3,10 @@
 		<v-alert
 			:color="this.store.state.alert.type"
 			transition="scale-transition"
-			dismissible
 			v-model="alert_visible"
+			v-html="this.store.state.alert.message"
+			dismissible
 		>
-			{{ this.store.state.alert.message }}
 		</v-alert>
 		<v-flex xs12>
 			<v-card class="pb-2 pt-2">
