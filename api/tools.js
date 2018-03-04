@@ -95,17 +95,17 @@ function escapeHtml (text) {
 
 function checkName (str) {
 	console.log('Name')
-	return checkStrRegex(str, '^[a-zA-Z][a-zA-Z0-9-_.]{1,50}$') // TODO dbl escape is usefull ?
+	return checkStrRegex(str, '^[a-zA-Z][a-zA-Z0-9-_\\.]{1,50}$') // TODO dbl escape is usefull ?
 }
 
 function checkUsername (str) {
 	console.log('userjkjjj')
-	return checkStrRegex(str, '^[a-zA-Z][a-zA-Z0-9-_.]{4,20}$') // TODO dbl escape is usefull ?
+	return checkStrRegex(str, '^[a-zA-Z][a-zA-Z0-9-_\\.]{4,20}$') // TODO dbl escape is usefull ?
 }
 
 function checkMail (str) {
 	console.log('mail')
-	return checkStrRegex(str, '^[A-Za-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,4}$')
+	return checkStrRegex(str, '^[A-Za-z0-9\\._%+-]+@[a-z0-9\\.-]+\\.[a-z]{2,4}$')
 	// return checkStrRegex(str, '^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$') // TODO dbl escape is usefull ?
 }
 
