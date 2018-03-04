@@ -46,6 +46,8 @@ function databaseLink (reset) {
 				}
 			}
 		})
+	}).catch(err => {
+		dispError('Cannot connect to database: ' + err)
 	})
 	return connectionPromise
 }
@@ -63,12 +65,14 @@ function databaseQuery (Rqt, values, callback) {
 	})
 	queryPromise.then((response) => {
 		callback(response)
+	}).catch(err => {
+		dispError(err)
 	})
 	return queryPromise
 }
 
 function checkStrRegex (str, regex) {
-	if (str === undefined || !str || !(str instanceof String)) {
+	if (str === undefined || typeof str !== 'string') {
 		return 1
 	}
 	if (str.match(regex) === null) {
@@ -77,20 +81,37 @@ function checkStrRegex (str, regex) {
 	return 0
 }
 
+function escapeHtml (text) {
+	var map = {
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'"': '&quot;',
+		"'": '&#039;'
+	}
+
+	return text.replace(/[&<>"']/g, function (m) { return map[m] })
+}
+
 function checkName (str) {
-	return checkStrRegex(str, '/^[a-zA-Z][a-zA-Z0-9-_\\.]{1,50}$/') // TODO dbl escape is usefull ?
+	console.log('Name')
+	return checkStrRegex(str, '^[a-zA-Z][a-zA-Z0-9-_.]{1,50}$') // TODO dbl escape is usefull ?
 }
 
 function checkUsername (str) {
-	return checkStrRegex(str, '/^[a-zA-Z][a-zA-Z0-9-_\\.]{4,20}$/') // TODO dbl escape is usefull ?
+	console.log('userjkjjj')
+	return checkStrRegex(str, '^[a-zA-Z][a-zA-Z0-9-_.]{4,20}$') // TODO dbl escape is usefull ?
 }
 
 function checkMail (str) {
-	return checkStrRegex(str, '^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$') // TODO dbl escape is usefull ?
+	console.log('mail')
+	return checkStrRegex(str, '^[A-Za-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,4}$')
+	// return checkStrRegex(str, '^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$') // TODO dbl escape is usefull ?
 }
 
 function checkPassword (str) {
-	return checkStrRegex(str, '/(?=^.{8,50}$)((?=.*\\d)|(?=.*\\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/') // TODO dbl escape is usefull ?
+	console.log('Pass')
+	return checkStrRegex(str, '(?=^.{8,50}$)((?=.*\\d)|(?=.*\\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$') // TODO dbl escape is usefull ?
 }
 
 function returnError (res, msg) {
@@ -103,6 +124,7 @@ function returnSuccess (res, msg) {
 }
 
 module.exports = {
+	escapeHtml: escapeHtml,
 	dbLink: databaseLink,
 	dbQuery: databaseQuery,
 	checkUsername: checkUsername,
@@ -110,6 +132,7 @@ module.exports = {
 	checkMail: checkMail,
 	checkPassword: checkPassword,
 	fatal: fatalError,
+	dispError: dispError,
 	err: returnError,
 	suc: returnSuccess
 }

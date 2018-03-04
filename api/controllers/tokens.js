@@ -3,8 +3,8 @@ const path		=	require('path'),
 
 let queryPromise = tool.dbLink()
 exports.read	=	(req, res) => {
-	function wrongToken () {
-		tool.err(res, 'An error occured... Your account cannot be verified.')
+	function wrongToken (msg) {
+		tool.err(res, 'An error occured... Your account cannot be verified:<br>' + msg)
 	}
 	function alreadyToken () {
 		tool.err(res, 'Your account was already verified. Please proceed to log in')
@@ -25,8 +25,7 @@ exports.read	=	(req, res) => {
 				response[0].ID,
 				validToken
 			).catch(err => {
-				tool.dispError(err)
-				wrongToken()
+				wrongToken(err)
 			})
 		}
 	}
@@ -39,8 +38,7 @@ exports.read	=	(req, res) => {
 			[req.params.token],
 			checkToken
 		).catch(err => {
-			tool.dispError(err)
-			wrongToken()
+			wrongToken(err)
 		})
 	})
 }

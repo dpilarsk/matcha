@@ -19,7 +19,7 @@ function databaseCompleted () {
 function fillProfileDatabase () {
 	message.success('\t Database filled with fake pictures')
 	tool.dbQuery(
-		'INSERT INTO `profile` (`user_ID`, `first_name`, `last_name`, `age`, `gender`, `biography`, `sexual_orientation`, `latitude`, `longitude`, `range`, `popularity`, `role`, `last_visit`, `profil_picture`) VALUES ?',
+		'INSERT INTO `profile` (`user_ID`, `age`, `gender`, `biography`, `sexual_orientation`, `latitude`, `longitude`, `range`, `popularity`, `role`, `last_visit`, `profil_picture`) VALUES ?',
 		[faker.profile()],
 		databaseCompleted
 	).catch(err => { tool.fatal(err, 'Cannot insert profiles in database') })
@@ -37,7 +37,7 @@ function fillPictureDatabase () {
 function fillUserDatabase () {
 	message.success(' Database structure is created succesfully.')
 	tool.dbQuery(
-		'INSERT INTO `user` (`username`, `password`, `email`, `status`) VALUES ?',
+		'INSERT INTO `user` (`username`, `first_name`, `last_name`, `password`, `email`, `status`) VALUES ?',
 		[faker.user()],
 		fillPictureDatabase
 	).catch(err => { tool.fatal(err, 'Cannot insert users in database') })
