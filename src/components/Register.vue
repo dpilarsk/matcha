@@ -91,12 +91,14 @@
 					currentLon: null
 				},
 				nameRules: [
-					v => !!v || 'Ce champ est requis.'
+					v => !!v || 'Ce champ est requis.',
+					v => v.match('^[a-zA-Z][a-zA-Z0-9-_\\.]{1,50}$') !== null || 'Ce champ est invalide.'
 				],
 				usernameRules: [
 					v => !!v || 'Un nom d\'utilisateur est requis.',
-					v => v.length >= 3 || 'Votre nom d\'utilisateur doit comporter au moins 3 caractères.',
-					v => v.length <= 12 || 'Votre nom d\'utilisateur ne doit pas comporter plus de 12 caractères.'
+					v => v.length >= 4 || 'Votre nom d\'utilisateur doit comporter au moins 3 caractères.',
+					v => v.length <= 20 || 'Votre nom d\'utilisateur ne doit pas comporter plus de 12 caractères.',
+					v => v.match('^[a-zA-Z][a-zA-Z0-9-_\\.]{4,20}$') !== null || 'Votre nom d\'utilisateur est invalide.'
 				],
 				emailRules: [
 					v => !!v || 'Votre email est requis.',
@@ -106,7 +108,7 @@
 					v => !!v || 'Un mot de passe est requis.',
 					v => v.length >= 8 || 'Votre mot de passe doit faire au moins 8 caractères.',
 					v => v.length <= 50 || 'Votre mot de passe ne doit pas faire plus de 50 caractères.',
-					v => v.match('^(?=.*[A-Z])(?=.*\\d)(?=.*[$@$!%*?&])[A-Za-z\\d$@$!%*?&]') !== null || 'Votre mot de passe ne respecte pas le minimum recommandé.'
+					v => v.match('(?=^.{8,50}$)((?=.*\\d)|(?=.*\\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$') !== null || 'Votre mot de passe ne respecte pas le minimum recommandé.'
 				],
 				passwordConfirmRules: [
 					v => !!v || 'La confirmation de votre mot de passe est nécessaire.',
