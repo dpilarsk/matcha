@@ -1,61 +1,44 @@
-const	mysql		=	require('mysql2'),
-	bcrypt		=	require('bcrypt'),
-	path	=	require('path'),
-	jwt			=	require('jsonwebtoken'),
-	moment		=	require('moment'),
-	nodemailer	=	require('nodemailer'),
-	db			=	require(__dirname + '/../resources/db.js'),
-	message		=	require(__dirname + '/../resources/utils.js'),
-	connection	=	mysql.createConnection({
-		host: db.cred().host,
-		user: db.cred().user,
-		password: db.cred().password
-	})
+const path		=	require('path'),
+	tool		=	require(path.join(__dirname, '..', 'tools.js'))
 
-let connectionPromise = new Promise(function(resolve, reject) {
-	connection.connect(err => {
-		if (err)
-			reject(err)
-		else
-			message.success('Connexion au serveur MySQL réussie.')
-		resolve()
-	})
-});
-
-let transporter = nodemailer.createTransport({
-	host: 'smtp.mailtrap.io',
-	port: 2525,
-	auth: {
-		user: 'd4119f6ed6c5a1',
-		pass: '8ac2d72a7253e3'
-	}
-})
-
-connectionPromise.then(() => {
-	connection.query('USE matcha', (err) => {
-		if (err)
-		{
-			message.error('Impossible d\'accéder a la bdd')
-			return
-		}
-	})
-})
-
+let queryPromise = tool.dbLink()
 exports.read	=	(req, res) => {
-	connectionPromise
-		.then(() =>
-			connection.query('SELECT * FROM user WHERE token = ? AND status = 0', [req.params.token], (err, response) => {
-				if (err || response.length === 0 || response.length !== 1) res.json({'status': 0, type: 'error', 'message': 'Une erreur est survenue, nous ne parvenons pas à valider votre compte.'})
-				else {
-					connection.query('UPDATE user SET status = 1 WHERE id = ?', [response[0].id], (err, response) => {
-						if (err) res.json({'status': 0, type: 'error', 'message': 'Une erreur est survenue, nous ne parvenons pas à valider votre compte.'})
-						else res.json({'status': 1, type: 'success', 'message': 'Votre compte est désormais validé, vous pouvez à présent vous connecter.'})
-					})
-				}
+	function wrongToken (msg) {
+		tool.err(res, 'An error occured... Your account cannot be verified:<br>' + msg)
+	}
+	function alreadyToken () {
+		tool.err(res, 'Your account was already verified. Please proceed to log in')
+	}
+	function validToken () {
+		tool.suc(res, 'Your account has been verified. You can now proceed to log in')
+	}
+	function checkToken (response) {
+		if (response === undefined || response.length === 0 || response.length !== 1) {
+			wrongToken()
+		} else if (response[0].status) {
+			alreadyToken()
+		} else {
+			tool.dbQuery(
+				'UPDATE `user` ' +
+				'SET `status` = 1 ' +
+				'WHERE `ID` = ?',
+				response[0].ID,
+				validToken
+			).catch(err => {
+				wrongToken(err)
 			})
-		)
-		.catch(err => {
-			message.error('Connexion au serveur MySQL échouée:\n' + err)
-			res.json({'status': 0})
+		}
+	}
+	queryPromise.then(() => {
+		tool.dbQuery(
+			'SELECT `user`.`ID` `user`.`status` ' +
+			'FROM `user` ' +
+			'INNER JOIN `token` ON `token`.`user_ID` = `user`.`ID` ' +
+			'WHERE `token` = ?',
+			[req.params.token],
+			checkToken
+		).catch(err => {
+			wrongToken(err)
 		})
+	})
 }

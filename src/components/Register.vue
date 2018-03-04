@@ -14,14 +14,14 @@
 					<v-flex xs12 sm6 md6 class="pb-1 pr-1">
 						<v-text-field
 							label="Prénom"
-							v-model="user.first_name"
+							v-model="user.firstName"
 							:rules="nameRules"
 							required></v-text-field>
 					</v-flex>
 					<v-flex xs12 sm6 md6 class="pb-1 pr-1">
 						<v-text-field
 							label="Nom"
-							v-model="user.last_name"
+							v-model="user.lastName"
 							:rules="nameRules"
 							required></v-text-field>
 					</v-flex>
@@ -81,8 +81,8 @@
 				store,
 				valid: false,
 				user: {
-					first_name: '',
-					last_name: '',
+					firstName: '',
+					lastName: '',
 					username: '',
 					email: '',
 					password: '',
@@ -100,7 +100,7 @@
 				],
 				emailRules: [
 					v => !!v || 'Votre email est requis.',
-					v => v.match('^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$') !== null || 'Votre adresse email est invalide.'
+					v => v.match('^[A-Za-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,4}$') !== null || 'Votre adresse email est invalide.'
 				],
 				passwordRules: [
 					v => !!v || 'Un mot de passe est requis.',

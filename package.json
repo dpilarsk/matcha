@@ -19,6 +19,7 @@
     "faker": "^4.1.0",
     "jsonwebtoken": "^8.1.1",
     "lodash": "^4.17.5",
+    "maildev": "^1.0.0-rc3",
     "moment": "^2.20.1",
     "mysql2": "^1.5.2",
     "nodemailer": "^4.4.2",

@@ -1,29 +1,31 @@
-const	faker		=	require('faker'),
-	path =	require('path'),
-	message	=	require(path.join(__dirname, '/resources/utils.js')),
-	bcrypt	=	require('bcrypt')
+const faker			=	require('faker'),
+	bcrypt			=	require('bcrypt'),
+	N_FAKE_DATA		=	1000
 
-module.exports = (() => {
-	let getGender = title => {
-		if (title === 'Mrs.' || title === 'Mme' || title === 'Ms.' || title === 'Mlle' || title === 'Miss') return 'woman'
-		else if (title === 'M' || title === 'Mr.') return 'man'
-		else if (title === 'Dr.' || title === 'Prof') return (Math.floor(Math.random()*(1-0+1)+0) === 1 ? 'man' : 'woman')
-		else {
-			message.success(title)
-			return title
-		}
-	}
+function createFalseUser () {
+	return [
+		faker.internet.userName().slice(0, 20),									// username
+		faker.name.firstName(),													// First Name
+		faker.name.lastName(),													// Last Name
+		bcrypt.hashSync('test', 2),												// password
+		faker.internet.email(),													// email
+		Math.random() > 0.5														// Status
+	]
+}
 
-	let getSexualOrientation = () => {
-		let orientations = ['heterosexual', 'homosexual', 'bisexual']
+function createFalsePicture (userID) {
+	return [
+		userID + 1,																// User Id (+1 is for align on table key beginning at 1)
+		faker.image.avatar()													// Profile picture
+	]
+}
 
-		return orientations[Math.floor(Math.random() * (2 - 0 + 1) + 0)]
-	}
-
+function createFalseProfile (userID) {
+	let sexuality = ['heterosexual', 'homosexual', 'bisexual']
 	let generateRandomPoint = () => {
 		let	x0	= 2.352222,
 			y0	= 48.856614,
-			rd	= 50000/111300,
+			rd	= 50000 / 111300,
 			u	= Math.random(),
 			v	= Math.random(),
 			w	= rd * Math.sqrt(u),
@@ -33,31 +35,47 @@ module.exports = (() => {
 			xp	= x / Math.cos(y0)
 		return { 'lng': y + y0, 'lat': xp + x0 }
 	}
-
+	let coords = generateRandomPoint()
 	let randomDate = (start, end) => {
-		return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+		return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
 	}
 
-	let genCoords = generateRandomPoint()
-	let user = [
-		username = faker.internet.userName().slice(0, 11),
-		first_name = faker.name.firstName(),
-		last_name = faker.name.lastName(),
-		email = faker.internet.email(),
-		age = Math.floor(Math.random()*(73-18+1)+18),
-		gender = getGender(faker.name.prefix()),
-		sexual_orientation = getSexualOrientation(),
-		password = bcrypt.hashSync('test', 2),
-		status = Math.floor(Math.random()*(1-0+1)+0),
-		longitude = genCoords.lng,
-		latitude = genCoords.lat,
-		distance = 50,
-		popularity = Math.floor(Math.random()*(9999-0+1)+0),
-		role = 'user',
-		token = 'd',
-		biography = faker.lorem.sentences(),
-		last_visit = randomDate(new Date(2015, 1, 3), new Date()),
-		picture = faker.image.avatar()
+	return [
+		userID + 1,																// User Id (+1 is for align on table key beginning at 1)
+		Math.floor(Math.random() * 102 + 18),									// Age in [ 18 - 120 ]
+		Math.random() > 0.5 ? 'man' : 'woman',									// Gender
+		faker.lorem.sentences(),												// Biography
+		sexuality[Math.floor(Math.random() * 3)],								// Sexual orientation
+		coords.lng,																// Longitude
+		coords.lat,																// Latitude
+		Math.floor(Math.random() * 130 + 20),									// Range in [ 20 - 150 ]
+		Math.floor(Math.random() * 10000),										// Popularity
+		'user',																	// Role
+		randomDate(new Date(2015, 1, 3), new Date()),							// Last visit
+		userID + 1																// profil picture (+1 is for align on table key beginning at 1)
 	]
-	return user
-})
+}
+
+function createFalseData (callback) {
+	let data = []
+	for (let i = 0; i < N_FAKE_DATA; i++) {
+		data[i] = callback(i)
+	}
+	return data
+}
+
+function createFalseUsers () {
+	return createFalseData(createFalseUser)
+}
+function createFalsePictures (userID) {
+	return createFalseData(createFalsePicture)
+}
+function createFalseProfiles (userID) {
+	return createFalseData(createFalseProfile)
+}
+
+module.exports = {
+	user: createFalseUsers,
+	picture: createFalsePictures,
+	profile: createFalseProfiles
+}
