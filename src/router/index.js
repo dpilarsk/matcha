@@ -43,7 +43,8 @@ export default new Router({
 			name: 'Suggestions',
 			component: Suggestions,
 			meta: {
-				requireAuth: true
+				requireAuth: true,
+				requireProfileComplete: true
 			}
 		},
 		{
@@ -51,7 +52,8 @@ export default new Router({
 			name: 'Informations',
 			component: Informations,
 			meta: {
-				requireAuth: true
+				requireAuth: true,
+				requireProfileComplete: false
 			}
 		},
 		{
@@ -59,7 +61,8 @@ export default new Router({
 			name: 'Profile',
 			component: Profile,
 			meta: {
-				requireAuth: true
+				requireAuth: true,
+				requireProfileComplete: true
 			}
 		},
 		{
@@ -67,7 +70,8 @@ export default new Router({
 			name: 'Account',
 			component: Account,
 			meta: {
-				requireAuth: true
+				requireAuth: true,
+				requireProfileComplete: false
 			}
 		},
 		{

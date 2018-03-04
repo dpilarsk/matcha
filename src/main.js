@@ -43,7 +43,7 @@ Vue.use(VueLodash, lodash)
 Vue.config.productionTip = false
 
 router.beforeEach((to, from, next) => {
-	if (to.meta.requireAuth) {
+	if (to.meta.requireAuth === true) {
 		if (Vue.$jwt.getToken() !== null) {
 			let token = JSON.parse(Vue.$jwt.getToken()).value
 			if (token && store.state.user === null) {
@@ -57,7 +57,9 @@ router.beforeEach((to, from, next) => {
 				}
 			}
 		}
-		if (to.name === 'Logout') {
+		if (to.meta.requireProfileComplete === true) {
+			if (!store.state.user.biography || store.state.user.biography === null) next({ name: 'Informations' })
+		} else if (to.name === 'Logout') {
 			Vue.ls.remove('token')
 			if (store.state.logged === true) store.commit('LOGOUT')
 			store.commit('DELETE_USER')
