@@ -97,7 +97,8 @@
 		</v-navigation-drawer>
 		<v-toolbar fixed app :clipped-left="clipped">
 			<v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-			<v-toolbar-title v-text="title"></v-toolbar-title>
+			<!--<v-toolbar-title v-text="title"></v-toolbar-title>-->
+			<router-link :to="{name: 'HelloWorld'}" style="cursor: pointer;" exact tag="v-toolbar-title">Matcha</router-link>
 			<v-spacer></v-spacer>
 		</v-toolbar>
 		<v-content dark>
