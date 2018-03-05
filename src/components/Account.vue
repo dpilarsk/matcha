@@ -78,7 +78,7 @@
 										label="Lieu de départ"
 										v-model="map.input.address"
 										box
-										@keyup.enter="setLocation()"
+										@keyup.enter="(map.input.address ? setLocation() : 0)"
 									></v-text-field>
 								</v-flex>
 								<v-flex xs12 class="text-xs-center">
