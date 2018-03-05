@@ -8,6 +8,7 @@ import Suggestions from '@/components/Suggestions'
 import Informations from '@/components/Informations'
 import Account from '@/components/Account'
 import Profile from '@/components/Profile'
+import Messages from '@/components/Messages'
 
 Vue.use(Router)
 
@@ -51,6 +52,15 @@ export default new Router({
 			path: '/informations',
 			name: 'Informations',
 			component: Informations,
+			meta: {
+				requireAuth: true,
+				requireProfileComplete: false
+			}
+		},
+		{
+			path: '/talks',
+			name: 'Messages',
+			component: Messages,
 			meta: {
 				requireAuth: true,
 				requireProfileComplete: false
