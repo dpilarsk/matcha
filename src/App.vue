@@ -97,17 +97,54 @@
 		</v-navigation-drawer>
 		<v-toolbar fixed app :clipped-left="clipped">
 			<v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-			<!--<v-toolbar-title v-text="title"></v-toolbar-title>-->
 			<router-link :to="{name: 'HelloWorld'}" style="cursor: pointer;" exact tag="v-toolbar-title">Matcha</router-link>
 			<v-spacer></v-spacer>
+			<div v-if="this.store.state.logged">
+				<v-menu offset-y style="" class="pr-4">
+					<div slot="activator">
+						<v-badge overlap color="primary">
+							<span slot="badge">99+</span>
+							<v-icon
+								large
+								color="grey darken-1"
+							>
+								notifications
+							</v-icon>
+						</v-badge>
+					</div>
+					<v-list>
+						<v-list-tile v-for="item in items" :key="item.title" @click="">
+							<v-list-tile-title>{{ item.title }}</v-list-tile-title>
+						</v-list-tile>
+					</v-list>
+				</v-menu>
+				<v-menu offset-y>
+					<div slot="activator">
+						<v-badge left overlap color="primary">
+							<span slot="badge">99+</span>
+							<v-icon
+								large
+								color="grey darken-1"
+							>
+								messages
+							</v-icon>
+						</v-badge>
+					</div>
+					<v-list>
+						<v-list-tile v-for="item in items" :key="item.title" @click="">
+							<v-list-tile-title>{{ item.title }}</v-list-tile-title>
+						</v-list-tile>
+					</v-list>
+				</v-menu>
+			</div>
 		</v-toolbar>
 		<v-content dark>
 			<v-container fluid>
-				<v-slide-y-transition mode="out-in">
-					<v-layout row wrap>
-						<router-view transition="fade-transition"></router-view>
-					</v-layout>
-				</v-slide-y-transition>
+				<v-layout row wrap>
+					<!--<transition name="slide">--> <!-- TODO: check why transition does not display well -->
+						<router-view></router-view>
+					<!--</transition>-->
+				</v-layout>
 			</v-container>
 		</v-content>
 		<v-footer app>
@@ -119,6 +156,7 @@
 <script>
 	import store from './store/UsersStore.js'
 	import { mapGetters } from 'vuex'
+	require('vue2-animate/dist/vue2-animate.min.css')
 	export default {
 		name: 'app',
 		data () {
@@ -128,9 +166,10 @@
 				fixed: false,
 				drawer: null,
 				items: [
-					{ icon: 'home', title: 'Accueil' },
-					{ icon: 'lock_open', title: 'Connexion' },
-					{ icon: 'account_circle', title: 'Inscription' }
+					{ title: 'Click Me1' },
+					{ title: 'Click Me2' },
+					{ title: 'Click Me3' },
+					{ title: 'Click Me 2' }
 				],
 				items2: [
 					{ icon: 'info', title: 'Mes Informations' },
