@@ -86,9 +86,7 @@
 					username: '',
 					email: '',
 					password: '',
-					passwordConfirm: '',
-					currentLat: null,
-					currentLon: null
+					passwordConfirm: ''
 				},
 				nameRules: [
 					v => !!v || 'Ce champ est requis.',
@@ -116,21 +114,7 @@
 				]
 			}
 		},
-		mounted () {
-			let _this = this
-			if (this.valid) this.valid = false
-			navigator.geolocation.watchPosition(pos => {
-				_this.user.currentLat = pos.coords.latitude
-				_this.user.currentLon = pos.coords.longitude
-			}, e => {
-				_this.$http.get('//freegeoip.net/json/?callback=').then(response => {
-					_this.user.currentLat = response.body.latitude
-					_this.user.currentLon = response.body.longitude
-				}, response => {
-					console.error("Impossible de géolocaliser l'utilisateur.")
-				})
-			})
-		},
+		mounted () {},
 		computed: {
 			alert_visible: {
 				get () {

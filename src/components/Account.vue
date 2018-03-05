@@ -10,7 +10,7 @@
 		</v-alert>
 		<v-flex xs12>
 			<h1 class="text-xs-center">Mon compte</h1>
-			<v-form v-model="valid">
+			<v-form v-if="!loading" v-model="valid">
 				<v-layout row wrap>
 					<v-flex xs12 sm6 md6 lg4 class="pb-1 pr-1">
 						<v-card class="pb-2">
@@ -129,6 +129,7 @@
 				</v-layout>
 				<v-btn ref="submit" @click="submit()" :disabled="!valid">Compléter mon profil</v-btn>
 			</v-form>
+			<div v-else>Loading...</div>
 		</v-flex>
 	</v-layout>
 </template>
@@ -142,6 +143,7 @@
 			return {
 				store,
 				valid: false,
+				loading: true,
 				tagsAvailable: ['test1', 'test2', 'test3'],
 				user: {
 					user_id: null,
@@ -156,13 +158,20 @@
 					tags: []
 				},
 				map: {
-					center: {lng: null, lat: null},
+					center: {lng: 2.349014, lat: 48.864716},
 					zoom: 14,
-					markers: [],
+					markers: [
+						{
+							position: {
+								lat: 48.864716,
+								lng: 2.349014
+							}
+						}
+					],
 					input: {
-						address: null,
-						lat: null,
-						lng: null
+						address: 'TEST',
+						lat: 2.397766,
+						lng: 2.349014
 					}
 				},
 				gender: [
@@ -209,34 +218,42 @@
 			}
 		},
 		mounted () {
+			if (this.valid) this.valid = false
 			this.user.user_id = this.store.state.user.id
 			this.user.age = this.store.state.user.age
 			this.user.gender = this.store.state.user.gender
 			this.user.biography = this.store.state.user.biography
 			this.user.sexual_orientation = this.store.state.user.sexual_orientation
-			this.user.latitude = this.store.state.user.latitude
-			this.user.longitude = this.store.state.user.longitude
 			this.user.range = this.store.state.user.range
-
-			this.map.input.lng = this.map.center.lng = this.store.state.user.longitude
-			this.map.input.lat = this.map.center.lat = this.store.state.user.latitude
-			this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + (this.store.state.user.latitude + ',' + this.store.state.user.longitude) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
-				this.map.input.address = response.body.results[0].formatted_address
-				this.map.markers.push({
-					position: {
-						lat: this.store.state.user.latitude,
-						lng: this.store.state.user.longitude
-					}
+			let latitude = JSON.parse(this.$ls.get('latitude'))
+			let longitude = JSON.parse(this.$ls.get('longitude'))
+			if (latitude !== null && longitude !== null) {
+				this.getLocation(latitude, longitude)
+			} else {
+				navigator.geolocation.watchPosition(pos => {
+					this.$ls.set('latitude', pos.coords.latitude)
+					this.$ls.set('longitude', pos.coords.longitude)
+					this.map.input.lng = this.map.center.lng = pos.coords.longitude
+					this.map.input.lat = this.map.center.lat = pos.coords.latitude
+					this.getLocation(JSON.parse(this.$ls.get('latitude')), JSON.parse(this.$ls.get('longitude')))
+				}, e => {
+					this.$http.get('//freegeoip.net/json/?callback=').then(response => {
+						this.$ls.set('latitude', response.body.latitude)
+						this.$ls.set('longitude', response.body.longitude)
+						this.map.input.lng = this.map.center.lng = response.body.longitude
+						this.map.input.lat = this.map.center.lat = response.body.latitude
+						this.getLocation(JSON.parse(this.$ls.get('latitude')), JSON.parse(this.$ls.get('longitude')))
+					}, response => {
+						console.error("Impossible de géolocaliser l'utilisateur.")
+					})
 				})
-			}, response => {
-				console.error(response)
-			})
+			}
 		},
 		methods: {
 			setLocation: function () {
 				this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?address=' + (this.map.input.address) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
-					this.store.state.user.latitude = this.user.latitude = response.body.results[0].geometry.location.lat
-					this.store.state.user.longitude = this.user.longitude = response.body.results[0].geometry.location.lng
+					this.user.latitude = response.body.results[0].geometry.location.lat
+					this.user.longitude = response.body.results[0].geometry.location.lng
 					this.map.center = this.map.markers[0].position
 					this.map.input.address = response.body.results[0].formatted_address
 					this.map.markers[0] = {
@@ -246,7 +263,26 @@
 						},
 						visible: true
 					}
+					this.$ls.set('latitude', this.user.latitude)
+					this.$ls.set('longitude', this.user.longitude)
 					this.map.center = this.map.markers[0].position
+				}, response => {
+					console.error(response)
+				})
+			},
+			getLocation: function (latitude, longitude) {
+				this.loading = true
+				this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + (Number(latitude) + ',' + Number(longitude)) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
+					this.map.input.address = response.body.results[0].formatted_address
+					this.map.input.lng = this.map.center.lng = longitude
+					this.map.input.lat = this.map.center.lat = latitude
+					this.map.markers.push({
+						position: {
+							lat: this.map.input.lat,
+							lng: this.map.input.lng
+						}
+					})
+					this.loading = false
 				}, response => {
 					console.error(response)
 				})
