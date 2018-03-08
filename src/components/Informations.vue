@@ -139,6 +139,7 @@
 					}
 				}).then(response => {
 					this.$refs['submit'].$el.innerHTML = 'Changer mes informations'
+					this.$ls.set('token', response.body.token, 60 * 60 * 1000 * 24)
 					this.store.commit('NEW_ALERT', {type: response.body.type, message: response.body.message})
 					setTimeout(function () {
 						_this.store.commit('DISMISS')
