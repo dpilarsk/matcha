@@ -314,6 +314,45 @@ function updateMyUserAccount (req, res) {
 	})
 }
 
+function updateUserProfile (req, res) {
+	let user = tool.getUser(req)
+	if (user === 1) tool.err(res, 'Please logout and login again.')
+	function queryFailed () {
+		tool.err(res, 'An error occured... Your accunt cannot be updated')
+	}
+	function querySuccess1 (response) {
+		console.log('das')
+	}
+	function querySuccess (response) {
+		if (response === undefined || response.length === 0 || response['affectedRows'] === 0) {
+			tool.dbQuery(
+				'INSERT INTO `profile` (`age`, `gender`, `biography`, `sexual_orientation`, `latitude`, `longitude`, `range`, `user_ID`, `profil_picture`) ' +
+				'VALUES (?, ?, ?, ?, ?, ?, ?, ?, null)',
+				[Number(req.body[0].age), req.body[0].gender, req.body[0].biography, req.body[0].sexual_orientation, Number(req.body[1]), Number(req.body[2]), req.body[0].range, user.ID],
+				querySuccess1
+			).catch(err => {
+				queryFailed('Request failed:<br>' + err)
+			})
+		} else {
+			console.log('UPDATE')
+		}
+	}
+	console.log(req.body)
+	queryPromise.then(() => {
+		tool.dbQuery(
+			'SELECT * FROM `profile` ' +
+			'WHERE `user_ID` = ?',
+			[user.ID],
+			querySuccess
+		).catch(err => {
+			queryFailed('Request failed:<br>' + err)
+		})
+	}).catch(err => {
+		tool.dispError(err)
+		queryFailed()
+	})
+}
+
 function deleteMyAccount (req, res) {
 	// TODO check params
 	// TODO check if is same user connected as user deleted ==> check if token is valid
@@ -349,5 +388,6 @@ module.exports = {
 	login: logIn,
 	read: getMyUserProfile,
 	update: updateMyUserAccount,
+	updateAccount: updateUserProfile,
 	delete: deleteMyAccount
 }

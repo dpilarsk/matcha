@@ -224,7 +224,7 @@
 			this.user.gender = this.store.state.user.gender
 			this.user.biography = this.store.state.user.biography
 			this.user.sexual_orientation = this.store.state.user.sexual_orientation
-			this.user.range = this.store.state.user.range
+			this.user.range = this.store.state.user.range || 0
 			let latitude = JSON.parse(this.$ls.get('latitude'))
 			let longitude = JSON.parse(this.$ls.get('longitude'))
 			if (latitude !== null && longitude !== null) {
@@ -276,12 +276,12 @@
 					this.map.input.address = response.body.results[0].formatted_address
 					this.map.input.lng = this.map.center.lng = longitude
 					this.map.input.lat = this.map.center.lat = latitude
-					this.map.markers.push({
+					this.map.markers[0] = {
 						position: {
 							lat: this.map.input.lat,
 							lng: this.map.input.lng
 						}
-					})
+					}
 					this.loading = false
 				}, response => {
 					console.error(response)
@@ -289,6 +289,30 @@
 			},
 			checkList: function () {
 				this.user.tags = this.user.tags.filter(t => t.trim().length > 0)
+			},
+			submit: function () {
+				let _this = this
+				this.$http.patch('http://localhost:8081/api/users/account', [this.user, this.$ls.get('longitude'), this.$ls.get('latitude')], {headers: {'Authorization': 'Basic ' + this.$ls.get('token')}}, {
+					progress (e) {
+						_this.$refs['submit'].$options.propsData['disabled'] = true
+						_this.$refs['submit'].$el.innerHTML = '<div class="progress-circular progress-circular--indeterminate primary--text" style="height: 32px; width: 32px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="25 25 50 50" style="transform: rotate(0deg);"><circle fill="transparent" cx="50" cy="50" r="20" stroke-width="4" stroke-dasharray="125.664" stroke-dashoffset="125.66370614359172px" class="progress-circular__overlay"></circle></svg><div class="progress-circular__info"></div></div>'
+					}
+				}).then(response => {
+					this.$refs['submit'].$el.innerHTML = 'Changer mes informations'
+//					this.$ls.set('token', response.body.token, 60 * 60 * 1000 * 24)
+//					this.store.commit('DELETE_USER')
+//					this.store.commit('CREATE_USER', this.$jwt.decode(JSON.parse(this.$jwt.getToken()).value).user)
+					this.store.commit('NEW_ALERT', {type: response.body.type, message: response.body.message})
+					setTimeout(function () {
+						_this.store.commit('DISMISS')
+					}, 2000)
+				}, response => {
+					this.$refs['submit'].$el.innerHTML = 'S\'inscrire'
+					this.store.commit('NEW_ALERT', {type: 'error', message: 'Impossible de changer vos informations. Une erreur est survenue.'})
+					setTimeout(function () {
+						_this.store.commit('DISMISS')
+					}, 2000)
+				})
 			}
 		},
 		computed: {
