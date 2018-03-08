@@ -280,6 +280,9 @@ function getMyUserProfile (req, res) {
 }
 
 function updateMyUserAccount (req, res) {
+	let user = tool.getUser(req)
+	if (user === 1) tool.err(res, 'Please logout and login again.')
+	let hash = bcrypt.hashSync(req.body[0].password, 10) // Async is useless in a already async function
 	// TODO profile update
 	// TODO check params
 	function queryFailed () {
@@ -289,16 +292,16 @@ function updateMyUserAccount (req, res) {
 		if (response === undefined || response.length === 0 || response['affectedRows'] === 0) {
 			queryFailed()
 		} else {
-			tool.suc(res, 'Account successfully updated')
+			tool.suc(res, 'Informations successfully updated')
 			// TODO update server value for user and next rqt
 		}
 	}
 	queryPromise.then(() => {
 		tool.dbQuery(
 			'UPDATE `user` ' +
-			'SET `username` = ?, `password` = ?, `email` = ?' +
+			'SET `first_name` = ?, `last_name` = ?, `password` = ?, `email` = ? ' +
 			'WHERE `username` = ?',
-			[req.params.username, req.params.password, req.params.email, req.params.username], // TODO BODY not params
+			[req.body[0].first_name, req.body[0].last_name, hash, req.body[0].email, user.username], // TODO BODY not params
 			querySuccess
 		).catch(err => {
 			queryFailed('Request failed:<br>' + err)

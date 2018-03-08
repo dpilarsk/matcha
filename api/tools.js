@@ -1,7 +1,8 @@
 const	mysql		=	require('mysql2'),
 	path			=	require('path'),
 	db				=	require(path.join(__dirname, 'resources', 'db.js')),
-	message			=	require(path.join(__dirname, 'resources', 'utils.js'))
+	message			=	require(path.join(__dirname, 'resources', 'utils.js')),
+	jwt				=	require('jsonwebtoken')
 
 // function voidCallback () { let e = 'coucou'; throw e }
 
@@ -123,6 +124,20 @@ function returnSuccess (res, msg) {
 	res.json({'status': 1, 'type': 'success', 'message': msg})
 }
 
+function getUserFromToken (req) {
+	if (req.headers['authorization']) {
+		let token = req.headers['authorization'].split(' ')[1]
+		try {
+			let decode = jwt.verify(token, 'demo')
+			return decode.user
+		} catch (err) {
+			return 1
+		}
+	} else {
+		return 1
+	}
+}
+
 module.exports = {
 	escapeHtml: escapeHtml,
 	dbLink: databaseLink,
@@ -134,5 +149,6 @@ module.exports = {
 	fatal: fatalError,
 	dispError: dispError,
 	err: returnError,
-	suc: returnSuccess
+	suc: returnSuccess,
+	getUser: getUserFromToken
 }

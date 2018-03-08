@@ -33,7 +33,7 @@
 							v-model="user.username"
 							:rules="usernameRules"
 							:counter="12"
-							required></v-text-field>
+							readonly></v-text-field>
 					</v-flex>
 					<v-flex xs12 sm6 md6 class="pb-1 pr-1">
 						<v-text-field
@@ -132,7 +132,7 @@
 		methods: {
 			submit () {
 				let _this = this
-				this.$http.patch('http://localhost:8081/api/users', [this.user], {
+				this.$http.patch('http://localhost:8081/api/users/informations', [this.user], {headers: {'Authorization': 'Basic ' + this.$ls.get('token')}}, {
 					progress (e) {
 						_this.$refs['submit'].$options.propsData['disabled'] = true
 						_this.$refs['submit'].$el.innerHTML = '<div class="progress-circular progress-circular--indeterminate primary--text" style="height: 32px; width: 32px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="25 25 50 50" style="transform: rotate(0deg);"><circle fill="transparent" cx="50" cy="50" r="20" stroke-width="4" stroke-dasharray="125.664" stroke-dashoffset="125.66370614359172px" class="progress-circular__overlay"></circle></svg><div class="progress-circular__info"></div></div>'

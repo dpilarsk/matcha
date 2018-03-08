@@ -16,6 +16,9 @@ router.route('/users')
 router.route('/users/login')
 	.post(controller.login)
 
+router.route('/users/informations')
+	.patch(controller.update)
+
 router.route('/users/:username')
 	.get(controller.read)
 	.put(controller.update)
