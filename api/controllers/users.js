@@ -293,7 +293,7 @@ function updateMyUserAccount (req, res) {
 			queryFailed()
 		} else {
 			req.body[0].password = hash
-			res.json({'status': 1, type: 'success', 'message': 'Vous êtes désormais connecté.', 'token': jwt.sign({user: req.body[0], exp: Math.floor(Date.now() / 1000) + ((60 * 60) * 24)}, 'demo')})
+			res.json({'status': 1, type: 'success', 'message': 'Your informations are update..', 'token': jwt.sign({user: req.body[0], exp: Math.floor(Date.now() / 1000) + ((60 * 60) * 24)}, 'demo')})
 			tool.suc(res, 'Informations successfully updated')
 			// TODO update server value for user and next rqt
 		}
