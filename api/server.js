@@ -2,13 +2,15 @@ const	express =	require('express'),
 	app		=	express(),
 	path	=	require('path'),
 	users	=	require(path.join(__dirname, '/routes/user.js')),
+	server = require('http').createServer(app),
+	io = require(path.join(__dirname, '/resources/sockets.js')).listen('8082'),
 	tokens	=	require(path.join(__dirname, '/routes/token.js')),
 	message	=	require(path.join(__dirname, '/resources/utils.js')),
 	bodyParser = require('body-parser'),
 	port	=	process.env.PORT || 8080
 
 app.use((req, res, next) => {
-	res.setHeader('Access-Control-Allow-Origin', '*')
+	res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080')
 
 	// Request methods you wish to allow
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE')
