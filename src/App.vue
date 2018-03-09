@@ -145,6 +145,11 @@
 				title: 'Matcha'
 			}
 		},
+		mounted () {
+			if (this.store.state.user) {
+				this.$socket.emit('connect_user', {'name': this.store.state.user.username})
+			}
+		},
 		computed: {
 			...mapGetters({
 				getLogged: 'logged'

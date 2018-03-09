@@ -54,6 +54,7 @@ router.beforeEach((to, from, next) => {
 					store.commit('LOGIN')
 				} else {
 					Vue.ls.remove('token')
+					new Vue().$socket.emit('disconnect')
 					if (store.state.logged === true) store.commit('LOGOUT')
 					next('/login')
 				}
@@ -63,10 +64,12 @@ router.beforeEach((to, from, next) => {
 			if (!store.state.user.biography || store.state.user.biography === null) next({ name: 'Informations' })
 		} else if (to.name === 'Logout') {
 			Vue.ls.remove('token')
+			new Vue().$socket.emit('disconnect')
 			if (store.state.logged === true) store.commit('LOGOUT')
 			store.commit('DELETE_USER')
 			next('/login')
 		} else if (!Vue.ls.get('token')) {
+			new Vue().$socket.emit('disconnect')
 			if (store.state.logged === true) store.commit('LOGOUT')
 			store.commit('DELETE_USER')
 			next('/login')
@@ -77,12 +80,14 @@ router.beforeEach((to, from, next) => {
 				else {
 					Vue.ls.remove('token')
 					store.commit('DELETE_USER')
+					new Vue().$socket.emit('disconnect')
 					if (store.state.logged === true) store.commit('LOGOUT')
 					next('/login')
 				}
 			} else {
 				Vue.ls.remove('token')
 				store.commit('DELETE_USER')
+				new Vue().$socket.emit('disconnect')
 				if (store.state.logged === true) store.commit('LOGOUT')
 				next('/login')
 			}

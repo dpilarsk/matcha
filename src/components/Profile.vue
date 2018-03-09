@@ -128,7 +128,6 @@
 			}
 		},
 		mounted () {
-			this.$socket.emit('connect_user', {'name': this.store.state.user.username})
 		},
 		computed: {
 			alert_visible: {

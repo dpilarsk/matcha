@@ -227,7 +227,6 @@
 			this.user.range = this.store.state.user.range || 0
 			let latitude = JSON.parse(this.$ls.get('latitude'))
 			let longitude = JSON.parse(this.$ls.get('longitude'))
-			this.$socket.emit('connect_user', {'name': this.store.state.user.username})
 			if (latitude !== null && longitude !== null) {
 				this.getLocation(latitude, longitude)
 			} else {

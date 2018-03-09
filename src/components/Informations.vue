@@ -114,7 +114,6 @@
 		},
 		mounted () {
 			if (this.valid) this.valid = false
-			this.$socket.emit('connect_user', {'name': this.store.state.user.username})
 			this.user.first_name = this.store.state.user.first_name
 			this.user.last_name = this.store.state.user.last_name
 			this.user.username = this.store.state.user.username
