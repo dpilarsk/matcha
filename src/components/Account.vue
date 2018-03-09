@@ -227,21 +227,22 @@
 			this.user.range = this.store.state.user.range || 0
 			let latitude = JSON.parse(this.$ls.get('latitude'))
 			let longitude = JSON.parse(this.$ls.get('longitude'))
+			this.$socket.emit('connect_user', {'name': this.store.state.user.username})
 			if (latitude !== null && longitude !== null) {
 				this.getLocation(latitude, longitude)
 			} else {
 				navigator.geolocation.watchPosition(pos => {
 					this.$ls.set('latitude', pos.coords.latitude)
 					this.$ls.set('longitude', pos.coords.longitude)
-					this.map.input.lng = this.map.center.lng = pos.coords.longitude
-					this.map.input.lat = this.map.center.lat = pos.coords.latitude
+					this.user.longitude = this.map.input.lng = this.map.center.lng = pos.coords.longitude
+					this.user.latitude = this.map.input.lat = this.map.center.lat = pos.coords.latitude
 					this.getLocation(JSON.parse(this.$ls.get('latitude')), JSON.parse(this.$ls.get('longitude')))
 				}, e => {
 					this.$http.get('//freegeoip.net/json/?callback=').then(response => {
 						this.$ls.set('latitude', response.body.latitude)
 						this.$ls.set('longitude', response.body.longitude)
-						this.map.input.lng = this.map.center.lng = response.body.longitude
-						this.map.input.lat = this.map.center.lat = response.body.latitude
+						this.user.longitude = this.map.input.lng = this.map.center.lng = response.body.longitude
+						this.user.latitude = this.map.input.lat = this.map.center.lat = response.body.latitude
 						this.getLocation(JSON.parse(this.$ls.get('latitude')), JSON.parse(this.$ls.get('longitude')))
 					}, response => {
 						console.error("Impossible de géolocaliser l'utilisateur.")
@@ -274,8 +275,8 @@
 				this.loading = true
 				this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + (Number(latitude) + ',' + Number(longitude)) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
 					this.map.input.address = response.body.results[0].formatted_address
-					this.map.input.lng = this.map.center.lng = longitude
-					this.map.input.lat = this.map.center.lat = latitude
+					this.user.longitude = this.map.input.lng = this.map.center.lng = longitude
+					this.user.latitude = this.map.input.lat = this.map.center.lat = latitude
 					this.map.markers[0] = {
 						position: {
 							lat: this.map.input.lat,
@@ -292,7 +293,7 @@
 			},
 			submit: function () {
 				let _this = this
-				this.$http.patch('http://localhost:8081/api/users/account', [this.user, this.$ls.get('longitude'), this.$ls.get('latitude')], {headers: {'Authorization': 'Basic ' + this.$ls.get('token')}}, {
+				this.$http.patch('http://localhost:8081/api/users/account', [this.user], {headers: {'Authorization': 'Basic ' + this.$ls.get('token')}}, {
 					progress (e) {
 						_this.$refs['submit'].$options.propsData['disabled'] = true
 						_this.$refs['submit'].$el.innerHTML = '<div class="progress-circular progress-circular--indeterminate primary--text" style="height: 32px; width: 32px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="25 25 50 50" style="transform: rotate(0deg);"><circle fill="transparent" cx="50" cy="50" r="20" stroke-width="4" stroke-dasharray="125.664" stroke-dashoffset="125.66370614359172px" class="progress-circular__overlay"></circle></svg><div class="progress-circular__info"></div></div>'

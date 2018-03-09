@@ -14,6 +14,7 @@ import 'vuetify/dist/vuetify.min.css'
 import * as VueGoogleMaps from 'vue2-google-maps'
 import lodash from 'lodash'
 import VueLodash from 'vue-lodash'
+import VueSocketio from 'vue-socket.io'
 
 let options = {
 	namespace: 'matcha__'
@@ -39,6 +40,7 @@ Vue.use(VueLocalStorage, options)
 Vue.use(VueJWT, {signKey: 'demo', keyName: 'matcha__token'})
 Vue.use(VueResource)
 Vue.use(VueLodash, lodash)
+Vue.use(VueSocketio, 'http://localhost:8082', store)
 
 Vue.config.productionTip = false
 

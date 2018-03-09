@@ -33,7 +33,12 @@
 	import 'vue-use-vuex'
 	import store from '@/store/UsersStore.js'
 	export default {
-		name: 'register',
+		name: 'login',
+		// sockets: {
+		// 	connect: function () {
+		// 		this.$socket.emit('connected', {'name': null})
+		// 	}
+		// },
 		data () {
 			return {
 				store: store,
@@ -50,7 +55,8 @@
 				]
 			}
 		},
-		mounted () {},
+		mounted () {
+		},
 		computed: {
 			alert_visible: {
 				get () {
@@ -75,6 +81,7 @@
 						this.valid = false
 						this.store.commit('LOGIN')
 						this.store.commit('CREATE_USER', this.$jwt.decode(response.body.token).user)
+						this.$socket.emit('connect_user', {'name': this.$jwt.decode(response.body.token).user.username})
 						setTimeout(function () {
 							_this.store.commit('DISMISS')
 						}, 2000)

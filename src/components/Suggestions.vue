@@ -187,6 +187,7 @@
 			}
 		},
 		mounted () {
+			this.$socket.emit('connect_user', {'name': this.store.state.user.username})
 			this.map.input.lng = this.map.center.lng = this.store.state.user.longitude
 			this.map.input.lat = this.map.center.lat = this.store.state.user.latitude
 			this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + (this.store.state.user.latitude + ',' + this.store.state.user.longitude) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
