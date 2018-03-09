@@ -4,7 +4,9 @@ const	mysql		=	require('mysql2'),
 	message			=	require(path.join(__dirname, 'resources', 'utils.js')),
 	jwt				=	require('jsonwebtoken')
 
-// function voidCallback () { let e = 'coucou'; throw e }
+function voidCallback () {
+
+}
 
 function isAVal (myVar, value) {
 	return myVar === undefined ? value : myVar

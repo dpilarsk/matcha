@@ -327,7 +327,7 @@ function updateUserProfile (req, res) {
 		if (response === undefined || response.length === 0 || response['affectedRows'] === 0) {
 			tool.dbQuery(
 				'INSERT INTO `profile` (`age`, `gender`, `biography`, `sexual_orientation`, `latitude`, `longitude`, `range`, `user_ID`, `profil_picture`) ' +
-				'VALUES (?, ?, ?, ?, ?, ?, ?, ?, null)',
+				'VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)',//TODO profile picture to change
 				[Number(req.body[0].age), req.body[0].gender, req.body[0].biography, req.body[0].sexual_orientation, Number(req.body[1]), Number(req.body[2]), req.body[0].range, user.ID],
 				querySuccess1
 			).catch(err => {
@@ -338,6 +338,13 @@ function updateUserProfile (req, res) {
 		}
 	}
 	console.log(req.body)
+	let param = req.body[0]
+	if (!param || !param.tags) {
+		queryFailed('Wrong data sent')
+	}
+	if (param.tag.length === 0) {
+		queryFailed('You must select almost one tags')
+	}
 	queryPromise.then(() => {
 		tool.dbQuery(
 			'SELECT * FROM `profile` ' +
