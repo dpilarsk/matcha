@@ -31,6 +31,8 @@ app.use(bodyParser.urlencoded({
 	extended: true
 }))
 
+app.use('/images', express.static(path.join(__dirname, '/public/uploads')))
+
 app.use('/api', users)
 app.use('/api', tokens)
 
