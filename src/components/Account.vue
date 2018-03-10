@@ -11,6 +11,8 @@
 		<v-flex xs12>
 			<h1 class="text-xs-center">Mon compte</h1>
 			<div v-if="!loading">
+				<div ref="pictures"></div>
+				<input v-if="this.$refs.pictures && this.$refs.pictures.children.length < 5" type="file" @change="change">
 				<v-form v-if="photo_uploaded" v-model="valid">
 					<v-layout row wrap>
 						<v-flex xs12 sm6 md6 lg4 class="pb-1 pr-1">
@@ -132,7 +134,7 @@
 				</v-form>
 				<div v-else>
 					<input type="file" @change="change">
-					<img :src="img" width="50%" alt="1">
+					<!--<img :src="img" width="50%" alt="1">-->
 				</div>
 			</div>
 			<div v-else>
@@ -251,6 +253,10 @@
 			this.$http.get('http://localhost:8081/api/profile/' + this.store.state.user.ID).then(response => {
 				if (response.body.message.length > 0) {
 					this.photo_uploaded = true
+					let pictureDiv = this.$refs.pictures
+					response.body.message.forEach(d => {
+						pictureDiv.innerHTML += '<img src="http://localhost:8081' + d.path + '" width="25%" alt="' + d.ID + '">'
+					})
 				}
 			})
 			if (latitude !== null && longitude !== null) {
