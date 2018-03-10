@@ -2,6 +2,7 @@ const	express =	require('express'),
 	app		=	express(),
 	path	=	require('path'),
 	users	=	require(path.join(__dirname, '/routes/user.js')),
+	profile	=	require(path.join(__dirname, '/routes/profile.js')),
 	server = require('http').createServer(app),
 	io = require(path.join(__dirname, '/resources/sockets.js')).listen('8082'),
 	tokens	=	require(path.join(__dirname, '/routes/token.js')),
@@ -34,6 +35,7 @@ app.use(bodyParser.urlencoded({
 app.use('/images', express.static(path.join(__dirname, '/public/uploads')))
 
 app.use('/api', users)
+app.use('/api', profile)
 app.use('/api', tokens)
 
 app.listen(port, () => message.success('Server started !\nSomething happened on port ' + port))

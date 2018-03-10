@@ -248,9 +248,11 @@
 			this.user.range = this.store.state.user.range || 0
 			let latitude = JSON.parse(this.$ls.get('latitude'))
 			let longitude = JSON.parse(this.$ls.get('longitude'))
-//			this.$http.get('http://localhost:8081/api/profile/' + this.store.state.user.ID).then(response => {
-//				console.log(response.body)
-//			})
+			this.$http.get('http://localhost:8081/api/profile/' + this.store.state.user.ID).then(response => {
+				if (response.body.message.length > 0) {
+					this.photo_uploaded = true
+				}
+			})
 			if (latitude !== null && longitude !== null) {
 				this.getLocation(latitude, longitude)
 			} else {
