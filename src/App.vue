@@ -4,7 +4,7 @@
 			fixed
 			:clipped="$vuetify.breakpoint.width > 1264"
 			v-model="drawer"
-			class="light-green accent-4"
+			class="primary"
 			app
 		>
 			<v-list>

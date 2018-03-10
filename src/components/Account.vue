@@ -10,126 +10,134 @@
 		</v-alert>
 		<v-flex xs12>
 			<h1 class="text-xs-center">Mon compte</h1>
-			<v-form v-if="!loading" v-model="valid">
-				<v-layout row wrap>
-					<v-flex xs12 sm6 md6 lg4 class="pb-1 pr-1">
-						<v-card class="pb-2">
-							<h1 class="text-xs-center">Informations personnelles</h1>
-							<hr>
-							<br>
-							<v-layout row wrap>
-								<v-flex xs12 sm6 md6 class="pl-3 pr-3">
-									<v-text-field label="Age" v-model="user.age"
-												  :rules="ageRules" type="number" required></v-text-field>
-								</v-flex>
-								<v-flex xs12 sm6 md6 class="pl-3 pr-3">
-									<v-select
-										:items="gender"
-										v-model="user.gender"
-										label="Votre sexe ?"
-										:rules="genderRules"
-										required></v-select>
-								</v-flex>
-							</v-layout>
-							<v-layout row wrap>
-								<v-flex xs12 class="pl-3 pr-3">
-									<v-select
-										:items="sexual_orientation"
-										v-model="user.sexual_orientation"
-										label="Votre orientation sexuelle ?"
-										:rules="sexualOrientationRules"
-										required></v-select>
-								</v-flex>
-							</v-layout>
-						</v-card>
-					</v-flex>
-					<v-flex xs12 sm6 md6 lg4 class="pb-1 pr-1">
-						<v-card>
-							<h1 class="text-xs-center">Préférences</h1>
-							<hr>
-							<br>
-							<v-layout row wrap>
-								<v-flex xs12 class="pl-3 pr-3">
-									<v-text-field label="Description" v-model="user.biography"
-												  :rules="biographyRules" multi-line required></v-text-field>
-								</v-flex>
-								<v-flex xs12 class="pl-3 pr-3">
-									Distance maximale
-									<v-slider
-										min="0.5"
-										max="150"
-										v-model="user.range"
-										step="0.5"
-										thumb-label
-										required
-									></v-slider>
-								</v-flex>
-							</v-layout>
-						</v-card>
-					</v-flex>
-					<v-flex xs12 sm6 md6 lg4 class="pb-1 pr-1">
-						<v-card>
-							<h1 class="text-xs-center">Localisation</h1>
-							<hr>
-							<br>
-							<v-layout row wrap align-center class="pl-3 pr-3">
-								<v-flex xs12>
-									<v-text-field
-										label="Lieu de départ"
-										v-model="map.input.address"
-										box
-										@keyup.enter="setLocation()"
-									></v-text-field>
-								</v-flex>
-								<v-flex xs12 class="text-xs-center">
-									<v-btn block @click="setLocation()" color="success">Définir comme lieu actuel</v-btn>
-								</v-flex>
-							</v-layout>
-							<gmap-map
-								:center="map.center"
-								:zoom="map.zoom"
-								style="width: 100%; height: 300px;"
-							>
-								<gmap-cluster>
-									<gmap-marker
-										:key="index"
-										v-for="(m, index) in map.markers"
-										:position="m.position"
-										:clickable="true"
-										:draggable="false"
-										:visible="m.visible"
-										@click="map.center=m.position"
-									>
-									</gmap-marker>
-								</gmap-cluster>
-							</gmap-map>
-						</v-card>
-					</v-flex>
-					<v-flex xs12 sm6 md6 lg4 class="pb-1 pr-1">
-						<v-card class="pb-2">
-							<h1 class="text-xs-center">Centres d'intérêts</h1>
-							<hr>
-							<br>
-							<v-layout row wrap>
-								<v-flex xs12 class="pl-3 pr-3">
-									<v-select
-										:items="tagsAvailable"
-										v-model="user.tags"
-										chips
-										tags
-										label="Vos centres d'intérêts ?"
-										:rules="tagsRules"
-										@keyup.enter="checkList()"
-										@blur="checkList()"
-										required></v-select>
-								</v-flex>
-							</v-layout>
-						</v-card>
-					</v-flex>
-				</v-layout>
-				<v-btn ref="submit" @click="submit()" :disabled="!valid">Compléter mon profil</v-btn>
-			</v-form>
-			<div v-else>Loading...</div>
+			<div v-if="!loading">
+				<v-form v-if="photo_uploaded" v-model="valid">
+					<v-layout row wrap>
+						<v-flex xs12 sm6 md6 lg4 class="pb-1 pr-1">
+							<v-card class="pb-2">
+								<h1 class="text-xs-center">Informations personnelles</h1>
+								<hr>
+								<br>
+								<v-layout row wrap>
+									<v-flex xs12 sm6 md6 class="pl-3 pr-3">
+										<v-text-field label="Age" v-model="user.age"
+													  :rules="ageRules" type="number" required></v-text-field>
+									</v-flex>
+									<v-flex xs12 sm6 md6 class="pl-3 pr-3">
+										<v-select
+											:items="gender"
+											v-model="user.gender"
+											label="Votre sexe ?"
+											:rules="genderRules"
+											required></v-select>
+									</v-flex>
+								</v-layout>
+								<v-layout row wrap>
+									<v-flex xs12 class="pl-3 pr-3">
+										<v-select
+											:items="sexual_orientation"
+											v-model="user.sexual_orientation"
+											label="Votre orientation sexuelle ?"
+											:rules="sexualOrientationRules"
+											required></v-select>
+									</v-flex>
+								</v-layout>
+							</v-card>
+						</v-flex>
+						<v-flex xs12 sm6 md6 lg4 class="pb-1 pr-1">
+							<v-card>
+								<h1 class="text-xs-center">Préférences</h1>
+								<hr>
+								<br>
+								<v-layout row wrap>
+									<v-flex xs12 class="pl-3 pr-3">
+										<v-text-field label="Description" v-model="user.biography"
+													  :rules="biographyRules" multi-line required></v-text-field>
+									</v-flex>
+									<v-flex xs12 class="pl-3 pr-3">
+										Distance : {{ this.user.range }}
+										<v-slider
+											min="0.5"
+											max="150"
+											v-model="user.range"
+											step="0.5"
+											thumb-label
+											required
+										></v-slider>
+									</v-flex>
+								</v-layout>
+							</v-card>
+						</v-flex>
+						<v-flex xs12 sm6 md6 lg4 class="pb-1 pr-1">
+							<v-card>
+								<h1 class="text-xs-center">Localisation</h1>
+								<hr>
+								<br>
+								<v-layout row wrap align-center class="pl-3 pr-3">
+									<v-flex xs12>
+										<v-text-field
+											label="Lieu de départ"
+											v-model="map.input.address"
+											box
+											@keyup.enter="setLocation()"
+										></v-text-field>
+									</v-flex>
+									<v-flex xs12 class="text-xs-center">
+										<v-btn block @click="setLocation()" color="success">Définir comme lieu actuel</v-btn>
+									</v-flex>
+								</v-layout>
+								<gmap-map
+									:center="map.center"
+									:zoom="map.zoom"
+									style="width: 100%; height: 300px;"
+								>
+									<gmap-cluster>
+										<gmap-marker
+											:key="index"
+											v-for="(m, index) in map.markers"
+											:position="m.position"
+											:clickable="true"
+											:draggable="false"
+											:visible="m.visible"
+											@click="map.center=m.position"
+										>
+										</gmap-marker>
+									</gmap-cluster>
+								</gmap-map>
+							</v-card>
+						</v-flex>
+						<v-flex xs12 sm6 md6 lg4 class="pb-1 pr-1">
+							<v-card class="pb-2">
+								<h1 class="text-xs-center">Centres d'intérêts</h1>
+								<hr>
+								<br>
+								<v-layout row wrap>
+									<v-flex xs12 class="pl-3 pr-3">
+										<v-select
+											:items="tagsAvailable"
+											v-model="user.tags"
+											chips
+											tags
+											label="Vos centres d'intérêts ?"
+											:rules="tagsRules"
+											@keyup.enter="checkList()"
+											@blur="checkList()"
+											required></v-select>
+									</v-flex>
+								</v-layout>
+							</v-card>
+						</v-flex>
+					</v-layout>
+					<v-btn ref="submit" @click="submit()" :disabled="!valid">Compléter mon profil</v-btn>
+				</v-form>
+				<div v-else>
+					<input type="file" @change="change">
+					<img :src="img" width="50%" alt="1">
+				</div>
+			</div>
+			<div v-else>
+				Loading...
+			</div>
 		</v-flex>
 	</v-layout>
 </template>
@@ -139,10 +147,23 @@
 	import store from '@/store/UsersStore.js'
 	export default {
 		name: 'account',
+		sockets: {
+			error_message (data) {
+				this.store.commit('NEW_ALERT', {type: 'error', message: data.message})
+				setTimeout(function () {
+					this.store.commit('DISMISS')
+				}, 2000)
+			},
+			success () {
+				this.photo_uploaded = true
+			}
+		},
 		data () {
 			return {
 				store,
 				valid: false,
+				img: 'a',
+				photo_uploaded: false,
 				loading: true,
 				tagsAvailable: ['test1', 'test2', 'test3'],
 				user: {
@@ -227,6 +248,9 @@
 			this.user.range = this.store.state.user.range || 0
 			let latitude = JSON.parse(this.$ls.get('latitude'))
 			let longitude = JSON.parse(this.$ls.get('longitude'))
+//			this.$http.get('http://localhost:8081/api/profile/' + this.store.state.user.ID).then(response => {
+//				console.log(response.body)
+//			})
 			if (latitude !== null && longitude !== null) {
 				this.getLocation(latitude, longitude)
 			} else {
@@ -250,6 +274,33 @@
 			}
 		},
 		methods: {
+			change: function (e) {
+				var input = e.target
+				if (input.files && input.files[0]) {
+					var reader = new FileReader()
+					if (Math.round(input.files[0].size / 1000000) > 50) {
+						this.store.commit('NEW_ALERT', { type: 'error', message: 'Your picture is too big.' })
+						setTimeout(function () {
+							this.store.commit('DISMISS')
+						}, 2000)
+					} else {
+						reader.onload = (e) => {
+							var arr = (new Uint8Array(e.target.result)).subarray(0, 4)
+							var header = ''
+							for (var i = 0; i < arr.length; i++) {
+								header += arr[i].toString(16)
+							}
+							this.img = 'data:image/jpeg;base64, ' + Buffer.from(e.target.result).toString('base64')
+							this.$socket.emit('upload_pic', {
+								'user': this.store.state.user.ID,
+								'type': header,
+								'picture': e.target.result
+							})
+						}
+					}
+					reader.readAsArrayBuffer(input.files[0])
+				}
+			},
 			setLocation: function () {
 				this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?address=' + (this.map.input.address) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
 					this.user.latitude = response.body.results[0].geometry.location.lat
