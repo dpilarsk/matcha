@@ -89,29 +89,57 @@ function escapeHtml (text) {
 		'"': '&quot;',
 		"'": '&#039;'
 	}
-
 	return text.replace(/[&<>"']/g, function (m) { return map[m] })
 }
 
 function checkName (str) {
-	console.log('Name')
-	return checkStrRegex(str, '^[a-zA-Z][a-zA-Z0-9-_\\.]{1,50}$') // TODO dbl escape is usefull ?
+	return checkStrRegex(str, '^[a-zA-Z][a-zA-Z0-9-_\\.]{1,50}$')
 }
 
 function checkUsername (str) {
-	console.log('userjkjjj')
-	return checkStrRegex(str, '^[a-zA-Z][a-zA-Z0-9-_\\.]{4,20}$') // TODO dbl escape is usefull ?
+	return checkStrRegex(str, '^[a-zA-Z][a-zA-Z0-9-_\\.]{4,20}$')
 }
 
 function checkMail (str) {
-	console.log('mail')
 	return checkStrRegex(str, '^[A-Za-z0-9\\._%+-]+@[a-z0-9\\.-]+\\.[a-z]{2,4}$')
 	// return checkStrRegex(str, '^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$') // TODO dbl escape is usefull ?
 }
 
 function checkPassword (str) {
-	console.log('Pass')
-	return checkStrRegex(str, '(?=^.{8,50}$)((?=.*\\d)|(?=.*\\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$') // TODO dbl escape is usefull ?
+	return checkStrRegex(str, '(?=^.{8,50}$)((?=.*\\d)|(?=.*\\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$')
+}
+
+function checkAge (str) {
+	console.log('check Age with [' + str + ']. Type is: ' + typeof str)
+	if (str === undefined || typeof str !== 'string') {
+		console.log('wrong type or null')
+		return 1
+	}
+	if (isNaN(str)) {
+		console.log('is nan!')
+		return 1
+	}
+	if (str < 18 || str > 200) {
+		console.log('wrong range')
+		return 1
+	}
+	return 0
+}
+
+function checkSexe (str) {
+	return checkStrRegex(str, '^(man|woman)$')
+}
+
+function checkOrientationSexe (str) {
+	return checkStrRegex(str, '^(bisexual|homosexual|heterosexual)$')
+}
+
+function checkDescription (str) {
+	if (str === undefined || typeof str !== 'string') {
+		console.log('wrong type or null')
+		return 1
+	}
+	return checkStrRegex(str, '^.{10,65535}$') // TODO insert in front !
 }
 
 function returnError (res, msg) {
@@ -131,6 +159,10 @@ module.exports = {
 	checkName: checkName,
 	checkMail: checkMail,
 	checkPassword: checkPassword,
+	checkAge: checkAge,
+	checkSexe: checkSexe,
+	checkOrientationSexe: checkOrientationSexe,
+	checkDescription: checkDescription,
 	fatal: fatalError,
 	dispError: dispError,
 	err: returnError,
