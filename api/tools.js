@@ -112,6 +112,18 @@ function checkPassword (str) {
 	return checkStrRegex(str, '(?=^.{8,50}$)((?=.*\\d)|(?=.*\\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$')
 }
 
+function checkTag (array) {
+	if (array === undefined || array.length === 0) {
+		return 1
+	}
+	array.forEach(function (entry) {
+		if (checkStrRegex(entry, '^[a-zA-Z0-9-_\\.]{1,20}$')) {
+			return 1
+		}
+	})
+	return 0
+}
+
 function checkAge (str) {
 	console.log('check Age with [' + str + ']. Type is: ' + typeof str)
 	if (str === undefined || typeof str !== 'string') {
@@ -129,7 +141,8 @@ function checkAge (str) {
 	return 0
 }
 
-function checkSexe (str) {
+function checkGender (str) {
+	console.log('in gender ' + str)
 	return checkStrRegex(str, '^(man|woman)$')
 }
 
@@ -176,13 +189,15 @@ module.exports = {
 	checkName: checkName,
 	checkMail: checkMail,
 	checkPassword: checkPassword,
+	checkTag: checkTag,
 	checkAge: checkAge,
-	checkSexe: checkSexe,
+	checkGender: checkGender,
 	checkOrientationSexe: checkOrientationSexe,
-	checkDescription: checkDescription,
+	checkBio: checkDescription,
 	fatal: fatalError,
 	dispError: dispError,
 	err: returnError,
 	suc: returnSuccess,
-	getUser: getUserFromToken
+	getUser: getUserFromToken,
+	void: voidCallback
 }
