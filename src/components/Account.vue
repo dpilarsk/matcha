@@ -11,8 +11,12 @@
 		<v-flex xs12>
 			<h1 class="text-xs-center">Mon compte</h1>
 			<div v-if="!loading">
-				<div ref="pictures"></div>
-				<input v-if="this.$refs.pictures && this.$refs.pictures.children.length < 5" type="file" @change="change">
+				<div ref="pictures">
+					<li v-for="picture in user.pictures" :key="picture.ID" style="display: inline">
+						<img :src="picture.path" @click="deletePic(picture.ID + '_' + picture.user_ID)" class="delete" width="25%" :alt="picture.ID">
+					</li>
+				</div>
+				<input ref="fileInput" v-if="this.user.pictures.length < 5" type="file" @change="change">
 				<v-form v-if="photo_uploaded" v-model="valid">
 					<v-layout row wrap>
 						<v-flex xs12 sm6 md6 lg4 class="pb-1 pr-1">
@@ -53,8 +57,9 @@
 								<br>
 								<v-layout row wrap>
 									<v-flex xs12 class="pl-3 pr-3">
-										<v-text-field label="Description" v-model="user.biography"
-													  :rules="biographyRules" multi-line required></v-text-field>
+										<v-text-field
+											label="Description" v-model="user.biography"
+											:rules="biographyRules" multi-line required></v-text-field>
 									</v-flex>
 									<v-flex xs12 class="pl-3 pr-3">
 										Distance : {{ this.user.range }}
@@ -80,6 +85,7 @@
 										<v-text-field
 											label="Lieu de départ"
 											v-model="map.input.address"
+											:rules="locationRules"
 											box
 											@keyup.enter="setLocation()"
 										></v-text-field>
@@ -132,10 +138,6 @@
 					</v-layout>
 					<v-btn ref="submit" @click="submit()" :disabled="!valid">Compléter mon profil</v-btn>
 				</v-form>
-				<div v-else>
-					<input type="file" @change="change">
-					<!--<img :src="img" width="50%" alt="1">-->
-				</div>
 			</div>
 			<div v-else>
 				Loading...
@@ -143,6 +145,17 @@
 		</v-flex>
 	</v-layout>
 </template>
+
+<style>
+	.delete {
+		transition: all .5s;
+	}
+
+	.delete:hover {
+		cursor: pointer;
+		filter: blur(2px);
+	}
+</style>
 
 <script>
 	import 'vue-use-vuex'
@@ -156,8 +169,25 @@
 					this.store.commit('DISMISS')
 				}, 2000)
 			},
-			success () {
+			success (data) {
+				this.user.pictures.push(data)
+				this.store.commit('NEW_ALERT', {type: 'success', message: 'Votre photo a bien été uploadée.'})
+				setTimeout(function () {
+					this.store.commit('DISMISS')
+				}, 2000)
+				let fileInput = this.$refs.fileInput
+				fileInput.value = ''
 				this.photo_uploaded = true
+			},
+			delete_success (data) {
+				this.user.pictures = this.user.pictures.filter(t => t.ID !== Number(data.id))
+				if (!this.user.pictures || this.user.pictures.length === 0) {
+					this.photo_uploaded = false
+				}
+				this.store.commit('NEW_ALERT', {type: 'success', message: 'Votre photo a bien été supprimée.'})
+				setTimeout(function () {
+					this.store.commit('DISMISS')
+				}, 2000)
 			}
 		},
 		data () {
@@ -178,7 +208,8 @@
 					longitude: null,
 					range: null,
 					profile_picture: null,
-					tags: []
+					tags: [],
+					pictures: []
 				},
 				map: {
 					center: {lng: 2.349014, lat: 48.864716},
@@ -226,6 +257,9 @@
 					v => v >= 18 || 'Vous devez avoir au moins 18 ans pour vous inscrire.',
 					v => v <= 99 || 'Vous ne devez pas avoir plus de 99 ans pour vous inscrire.'
 				],
+				locationRules: [
+					v => !!v || 'Votre localisation est requise'
+				],
 				genderRules: [
 					v => !!v || 'Votre sexe est requis.'
 				],
@@ -233,10 +267,13 @@
 					v => !!v || 'Votre orientation sexuelle est requise.'
 				],
 				biographyRules: [
-					v => !!v || 'Une description de vous est obligatoire.'
+					v => !!v || 'Une description de vous est obligatoire.',
+					v => (v && v.length >= 10) || 'Votre description est trop courte.',
+					v => (v && v.length <= 65535) || 'Votre description est trop longue.'
 				],
 				tagsRules: [
-					v => v.length > 0 || 'Des centres d\'intérêts sont obligatoire.'
+					v => v.length > 0 || 'Des centres d\'intérêts sont obligatoire.',
+					v => (v[v.length - 1] && v[v.length - 1].match('^[a-zA-Z0-9-_\\.]{1,20}$') !== null) || 'Un de vos centres d\'intérêts n\'est pas valide.'
 				]
 			}
 		},
@@ -253,10 +290,8 @@
 			this.$http.get('http://localhost:8081/api/profile/' + this.store.state.user.ID).then(response => {
 				if (response.body.message.length > 0) {
 					this.photo_uploaded = true
-					let pictureDiv = this.$refs.pictures
-					response.body.message.forEach(d => {
-						pictureDiv.innerHTML += '<img src="http://localhost:8081' + d.path + '" width="25%" alt="' + d.ID + '">'
-					})
+					this.user.pictures.push(response.body.message)
+					this.user.pictures = this.user.pictures[0]
 				}
 			})
 			if (latitude !== null && longitude !== null) {
@@ -309,6 +344,12 @@
 					reader.readAsArrayBuffer(input.files[0])
 				}
 			},
+			deletePic: function (e) {
+				this.$socket.emit('delete_pic', {
+					'user': this.store.state.user.ID,
+					'ID': e
+				})
+			},
 			setLocation: function () {
 				this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?address=' + (this.map.input.address) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
 					this.user.latitude = response.body.results[0].geometry.location.lat
@@ -347,7 +388,7 @@
 				})
 			},
 			checkList: function () {
-				this.user.tags = this.user.tags.filter(t => t.trim().length > 0)
+				this.user.tags = this.user.tags.filter(t => t.match('^[a-zA-Z0-9-_\\.]{1,20}$') !== null)
 			},
 			submit: function () {
 				let _this = this
