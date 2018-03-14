@@ -77,6 +77,11 @@ module.exports.listen = app => {
 				console.log('Successfully deleted.')
 				socket.emit('delete_success', { id: picture_ID })
 			}
+
+			function queryFailed () {
+				socketError(socket, 'Votre photo ne peut-être supprimée.')
+			}
+
 			var picture_ID = data.ID.split('_')[0]
 			let user_ID = data.user
 
