@@ -341,6 +341,7 @@ function updateUserProfile (req, res) {
 				})
 			}
 		}
+		// TODO why insert tags are weird with id
 		let toto = []
 		param.tags.forEach(function (entry) {
 			toto.push([entry])
@@ -359,7 +360,7 @@ function updateUserProfile (req, res) {
 			tool.dbQuery(
 				'INSERT INTO `profile` (`age`, `gender`, `biography`, `sexual_orientation`, `latitude`, `longitude`, `range`, `user_ID`, `profil_picture`) ' +
 				'VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)', // TODO profile picture to change TODO ON DUPPLICATE KEY UPDATE?
-				[param.age, param.gender, param.biography, param.sexual_orientation, Number(req.body[1]), Number(req.body[2]), param.range, user.ID], // TODO replace req by param
+				[param.age, param.gender, param.biography, param.sexual_orientation, Number(param.latitude), Number(param.longitude), param.range, user.ID], // TODO replace req by param
 				createMissingTags
 			).catch(err => {
 				queryFailed('Request failed:<br>' + err)
