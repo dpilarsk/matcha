@@ -318,32 +318,68 @@ function updateUserProfile (req, res) {
 	let user = tool.getUser(req)
 	if (user === 1) tool.err(res, 'Please logout and login again.')
 	function queryFailed () {
-		tool.err(res, 'An error occured... Your accunt cannot be updated')
+		tool.err(res, 'An error occured... Your account cannot be updated')
 	}
-	function querySuccess1 (response) {
-		console.log('das')
+	function querySuccess () {
+		tool.suc(res, 'Account successfully updated')
 	}
-	function querySuccess (response) {
+	function createMissingTags (response) {
+		let count = 0
+		function createTagsLinks () {
+			count += 1
+			if (count === param.tags.length) {
+				querySuccess()
+			} else {
+				tool.dbQuery(
+					'SELECT id into @tid from `tag` where `content` = ?; ' +
+					'INSERT IGNORE INTO `tag_to_user` (`user_ID`, `tag_ID`) ' + // TODO approve this ignore key word
+					'VALUES (?, @tid)',
+					[param.tags[count - 1], user.ID],
+					createTagsLinks
+				).catch(err => {
+					queryFailed('Request failed:<br>' + err)
+				})
+			}
+		}
+		let toto = []
+		param.tags.forEach(function (entry) {
+			toto.push([entry])
+		})
+		tool.dbQuery(
+			'INSERT IGNORE INTO `tag` (`content`) ' + // TODO approve this ignore key word
+			'VALUES ?',
+			[toto],
+			createTagsLinks
+		).catch(err => {
+			queryFailed('Request failed:<br>' + err)
+		})
+	}
+	function insertProfile (response) {
 		if (response === undefined || response.length === 0 || response['affectedRows'] === 0) {
 			tool.dbQuery(
 				'INSERT INTO `profile` (`age`, `gender`, `biography`, `sexual_orientation`, `latitude`, `longitude`, `range`, `user_ID`, `profil_picture`) ' +
-				'VALUES (?, ?, ?, ?, ?, ?, ?, ?, null)',
-				[Number(req.body[0].age), req.body[0].gender, req.body[0].biography, req.body[0].sexual_orientation, Number(req.body[1]), Number(req.body[2]), req.body[0].range, user.ID],
-				querySuccess1
+				'VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)', // TODO profile picture to change TODO ON DUPPLICATE KEY UPDATE?
+				[param.age, param.gender, param.biography, param.sexual_orientation, Number(req.body[1]), Number(req.body[2]), param.range, user.ID], // TODO replace req by param
+				createMissingTags
 			).catch(err => {
 				queryFailed('Request failed:<br>' + err)
 			})
 		} else {
 			console.log('UPDATE')
+			createMissingTags()
 		}
 	}
 	console.log(req.body)
+	let param = req.body[0]
+	if (!param || tool.checkTag(param.tags) || tool.checkAge(param.age) || tool.checkGender(param.gender) || tool.checkBio(param.biography) || tool.checkOrientationSexe(param.sexual_orientation)) { // TODO check longitude / latitude + check range
+		return queryFailed('Wrong data sent')
+	}
 	queryPromise.then(() => {
 		tool.dbQuery(
 			'SELECT * FROM `profile` ' +
 			'WHERE `user_ID` = ?',
 			[user.ID],
-			querySuccess
+			insertProfile
 		).catch(err => {
 			queryFailed('Request failed:<br>' + err)
 		})
