@@ -46,7 +46,7 @@ module.exports.listen = app => {
 
 			function querySuccess (response) {
 				socket.emit('success', { ID: response.insertId, path: pathImgRq })
-				console.log('Successfully uploaded.')
+				console.log('Successfully uploaded1.')
 			}
 			let type = getMimeType(data.type)
 			if (type === 'jpeg' || type === 'png') {
@@ -73,11 +73,11 @@ module.exports.listen = app => {
 			}
 		})
 		socket.on('delete_pic', data => {
-			function querySuccess(id) {
-				console.log('Successfully uploaded.')
-				socket.emit('delete_success', { id })
+			function querySuccess () {
+				console.log('Successfully deleted.')
+				socket.emit('delete_success', { id: picture_ID })
 			}
-			let picture_ID = data.ID.split('_')[0]
+			var picture_ID = data.ID.split('_')[0]
 			let user_ID = data.user
 
 			queryPromise.then(() => {
@@ -85,7 +85,7 @@ module.exports.listen = app => {
 					'DELETE FROM `picture` ' +
 					'WHERE ID = ? and user_ID = ?',
 					[picture_ID, user_ID],
-					querySuccess(picture_ID)
+					querySuccess
 				).catch(err => {
 					queryFailed('Request failed:<br>' + err)
 				})
