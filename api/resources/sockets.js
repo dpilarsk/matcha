@@ -44,15 +44,15 @@ module.exports.listen = app => {
 		})
 		socket.on('upload_pic', data => {
 
-			function querySuccess() {
+			function querySuccess (response) {
+				socket.emit('success', { ID: response.insertId, path: pathImgRq })
 				console.log('Successfully uploaded.')
 			}
 			let type = getMimeType(data.type)
-			console.log(type)
 			if (type === 'jpeg' || type === 'png') {
 				let file = (String(data.user) + '_' + String(Date.now()) + '.' + type)
 				let pathImgWr = path.join(__dirname, '/../public/uploads/') + file
-				let pathImgRq = '/images/' + file
+				var pathImgRq = 'http://localhost:8081/images/' + file
 				fs.writeFileSync(pathImgWr, Buffer.from(new Uint8Array(data.picture)))
 				// TODO: Need to verify the JWT
 				queryPromise.then(() => {
@@ -68,10 +68,31 @@ module.exports.listen = app => {
 					tool.dispError(err)
 					queryFailed('Request failed')
 				})
-				socket.emit('success')
 			} else {
 				socketError(socket, 'Your file is not an image !')
 			}
+		})
+		socket.on('delete_pic', data => {
+			function querySuccess(id) {
+				console.log('Successfully uploaded.')
+				socket.emit('delete_success', { id })
+			}
+			let picture_ID = data.ID.split('_')[0]
+			let user_ID = data.user
+
+			queryPromise.then(() => {
+				tool.dbQuery(
+					'DELETE FROM `picture` ' +
+					'WHERE ID = ? and user_ID = ?',
+					[picture_ID, user_ID],
+					querySuccess(picture_ID)
+				).catch(err => {
+					queryFailed('Request failed:<br>' + err)
+				})
+			}).catch(err => {
+				tool.dispError(err)
+				queryFailed('Request failed')
+			})
 		})
 		socket.on('disconnect', () => {
 			// console.log(socket)
