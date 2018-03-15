@@ -2,7 +2,7 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import router from './router'
-import VueResource from 'vue-resource'
+// import VueResource from 'vue-resource'
 import VueLocalStorage from 'vue-ls'
 import VueJWT from 'vuejs-jwt'
 import 'vue-use-vuex'
@@ -15,10 +15,14 @@ import * as VueGoogleMaps from 'vue2-google-maps'
 import lodash from 'lodash'
 import VueLodash from 'vue-lodash'
 import VueSocketio from 'vue-socket.io'
+import axios from 'axios'
+import VueAxios from 'vue-axios'
 
 let options = {
 	namespace: 'matcha__'
 }
+
+axios.defaults.baseURL = process.env.URL
 
 Vue.use(VueGoogleMaps, {
 	load: {
@@ -38,9 +42,10 @@ Vue.use(Vuetify, { theme: {
 Vue.use(Vuex)
 Vue.use(VueLocalStorage, options)
 Vue.use(VueJWT, {signKey: 'demo', keyName: 'matcha__token'})
-Vue.use(VueResource)
+// Vue.use(VueResource)
 Vue.use(VueLodash, lodash)
-Vue.use(VueSocketio, 'http://localhost:8082', store)
+Vue.use(VueSocketio, process.env.SOCKETS, store)
+Vue.use(VueAxios, axios)
 
 Vue.config.productionTip = false
 

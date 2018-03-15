@@ -4,11 +4,11 @@ const	express =	require('express'),
 	users	=	require(path.join(__dirname, '/routes/user.js')),
 	profile	=	require(path.join(__dirname, '/routes/profile.js')),
 	server = require('http').createServer(app),
-	io = require(path.join(__dirname, '/resources/sockets.js')).listen('8082'),
+	port	=	process.env.API_PORT || 8081,
+	io = require(path.join(__dirname, '/resources/sockets.js')).listen(Number(port) + 1),
 	tokens	=	require(path.join(__dirname, '/routes/token.js')),
 	message	=	require(path.join(__dirname, '/resources/utils.js')),
-	bodyParser = require('body-parser'),
-	port	=	process.env.PORT || 8080
+	bodyParser = require('body-parser')
 
 app.use((req, res, next) => {
 	res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080')

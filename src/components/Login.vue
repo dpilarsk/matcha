@@ -70,35 +70,53 @@
 		methods: {
 			submit () {
 				let _this = this
-				this.$http.post('http://localhost:8081/api/users/login', [this.user], {
-					progress (e) {
-						_this.$refs['submit'].$options.propsData['disabled'] = true
-						_this.$refs['submit'].$el.innerHTML = '<div class="progress-circular progress-circular--indeterminate primary--text" style="height: 32px; width: 32px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="25 25 50 50" style="transform: rotate(0deg);"><circle fill="transparent" cx="50" cy="50" r="20" stroke-width="4" stroke-dasharray="125.664" stroke-dashoffset="125.66370614359172px" class="progress-circular__overlay"></circle></svg><div class="progress-circular__info"></div></div>'
-					}
-				}).then(response => {
-					if (response.body.type === 'success') {
-						this.$ls.set('token', response.body.token, 60 * 60 * 1000 * 24)
-						this.valid = false
-						this.store.commit('LOGIN')
-						this.store.commit('CREATE_USER', this.$jwt.decode(response.body.token).user)
-						this.$socket.emit('connect_user', {'name': this.$jwt.decode(response.body.token).user.username})
+				this.axios.post('/users/login', [this.user])
+					.then(response => {
+						if (response.data.type === 'success') {
+							this.$ls.set('token', response.data.token, 60 * 60 * 1000 * 24)
+							this.valid = false
+							this.store.commit('LOGIN')
+							this.store.commit('CREATE_USER', this.$jwt.decode(response.data.token).user)
+							this.$socket.emit('connect_user', {'name': this.$jwt.decode(response.data.token).user.username})
+							this.$router.push({ name: 'Informations' })
+						}
+						this.store.commit('NEW_ALERT', {type: response.data.type, message: response.data.message})
 						setTimeout(function () {
 							_this.store.commit('DISMISS')
 						}, 2000)
-						_this.$router.push({ name: 'Informations' })
-					}
-					this.$refs['submit'].$el.innerHTML = 'Se connecter'
-					this.store.commit('NEW_ALERT', {type: response.body.type, message: response.body.message})
-					setTimeout(function () {
-						_this.store.commit('DISMISS')
-					}, 2000)
-				}, response => {
-					this.$refs['submit'].$el.innerHTML = 'Se connecter'
-					this.store.commit('NEW_ALERT', {type: 'error', message: 'Impossible de vous inscrire. Une erreur est survenue.'})
-					setTimeout(function () {
-						_this.store.commit('DISMISS')
-					}, 2000)
-				})
+					})
+					.catch(err => {
+						console.log(err)
+					})
+				// this.$http.post('http://localhost:8081/api/users/login', [this.user], {
+				// 	progress (e) {
+				// 		_this.$refs['submit'].$options.propsData['disabled'] = true
+				// 		_this.$refs['submit'].$el.innerHTML = '<div class="progress-circular progress-circular--indeterminate primary--text" style="height: 32px; width: 32px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="25 25 50 50" style="transform: rotate(0deg);"><circle fill="transparent" cx="50" cy="50" r="20" stroke-width="4" stroke-dasharray="125.664" stroke-dashoffset="125.66370614359172px" class="progress-circular__overlay"></circle></svg><div class="progress-circular__info"></div></div>'
+				// 	}
+				// }).then(response => {
+				// 	if (response.body.type === 'success') {
+				// 		this.$ls.set('token', response.body.token, 60 * 60 * 1000 * 24)
+				// 		this.valid = false
+				// 		this.store.commit('LOGIN')
+				// 		this.store.commit('CREATE_USER', this.$jwt.decode(response.body.token).user)
+				// 		this.$socket.emit('connect_user', {'name': this.$jwt.decode(response.body.token).user.username})
+				// 		setTimeout(function () {
+				// 			_this.store.commit('DISMISS')
+				// 		}, 2000)
+				// 		_this.$router.push({ name: 'Informations' })
+				// 	}
+				// 	this.$refs['submit'].$el.innerHTML = 'Se connecter'
+				// 	this.store.commit('NEW_ALERT', {type: response.body.type, message: response.body.message})
+				// 	setTimeout(function () {
+				// 		_this.store.commit('DISMISS')
+				// 	}, 2000)
+				// }, response => {
+				// 	this.$refs['submit'].$el.innerHTML = 'Se connecter'
+				// 	this.store.commit('NEW_ALERT', {type: 'error', message: 'Impossible de vous inscrire. Une erreur est survenue.'})
+				// 	setTimeout(function () {
+				// 		_this.store.commit('DISMISS')
+				// 	}, 2000)
+				// })
 			}
 		}
 	}

@@ -233,6 +233,7 @@ function logIn (req, res) {
 
 	let param = req.body[0]
 	if (!param || (tool.checkUsername(param.login) && tool.checkMail(param.login)) || tool.checkPassword(param.password)) {
+		console.log(param.password, tool.checkPassword(param.password))
 		return queryFailed('Wrong data sent') // res.json({'status': 0, type: 'error', 'message': 'Une erreur est survenue.'})
 	}
 	queryPromise.then(() => {
