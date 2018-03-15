@@ -128,24 +128,16 @@
 		methods: {
 			submit () {
 				let _this = this
-				this.$http.post('http://localhost:8081/api/users', [this.user], {
-					progress (e) {
-						_this.$refs['submit'].$options.propsData['disabled'] = true
-						_this.$refs['submit'].$el.innerHTML = '<div class="progress-circular progress-circular--indeterminate primary--text" style="height: 32px; width: 32px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="25 25 50 50" style="transform: rotate(0deg);"><circle fill="transparent" cx="50" cy="50" r="20" stroke-width="4" stroke-dasharray="125.664" stroke-dashoffset="125.66370614359172px" class="progress-circular__overlay"></circle></svg><div class="progress-circular__info"></div></div>'
-					}
-				}).then(response => {
-					this.$refs['submit'].$el.innerHTML = 'S\'inscrire'
-					this.store.commit('NEW_ALERT', {type: response.body.type, message: response.body.message})
-					setTimeout(function () {
-						_this.store.commit('DISMISS')
-					}, 2000)
-				}, response => {
-					this.$refs['submit'].$el.innerHTML = 'S\'inscrire'
-					this.store.commit('NEW_ALERT', {type: 'error', message: 'Impossible de vous inscrire. Une erreur est survenue.'})
-					setTimeout(function () {
-						_this.store.commit('DISMISS')
-					}, 2000)
-				})
+				this.axios.post('/users', [this.user])
+					.then(response => {
+						this.store.commit('NEW_ALERT', {type: response.data.type, message: response.data.message})
+						setTimeout(function () {
+							_this.store.commit('DISMISS')
+						}, 2000)
+					})
+					.catch(err => {
+						console.log(err)
+					})
 			}
 		}
 	}

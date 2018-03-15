@@ -34,11 +34,22 @@
 			}
 		},
 		mounted () {
-			this.$http.get('http://localhost:8081/api/tokens/confirm/' + this.$route.params.token).then(response => {
-				this.store.commit('NEW_ALERT', {type: response.body.type, message: response.body.message})
-			}, response => {
-				this.store.commit('NEW_ALERT', {type: 'error', message: 'Une erreur est survenue.'})
-			})
+			let _this = this
+			this.axios.get('/tokens/confirm/' + this.$route.params.token)
+				.then(response => {
+					this.store.commit('NEW_ALERT', {type: response.data.type, message: response.data.message})
+					setTimeout(function () {
+						_this.store.commit('DISMISS')
+					}, 2000)
+					this.$router.push({ name: 'Login' })
+				})
+				.catch(err => {
+					this.store.commit('NEW_ALERT', {type: 'error', message: 'Une erreur est survenue.' + err})
+					setTimeout(function () {
+						_this.store.commit('DISMISS')
+					}, 2000)
+					this.$router.push({ name: 'Login' })
+				})
 		}
 	}
 </script>

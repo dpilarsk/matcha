@@ -287,13 +287,17 @@
 			this.user.range = this.store.state.user.range || 0
 			let latitude = JSON.parse(this.$ls.get('latitude'))
 			let longitude = JSON.parse(this.$ls.get('longitude'))
-			this.$http.get('http://localhost:8081/api/profile/' + this.store.state.user.ID).then(response => {
-				if (response.body.message.length > 0) {
-					this.photo_uploaded = true
-					this.user.pictures.push(response.body.message)
-					this.user.pictures = this.user.pictures[0]
-				}
-			})
+			this.axios.get('/profile/' + this.store.state.user.ID)
+				.then(response => {
+					if (response.data.message.length > 0) {
+						this.photo_uploaded = true
+						this.user.pictures.push(response.data.message)
+						this.user.pictures = this.user.pictures[0]
+					}
+				})
+				.catch(err => {
+					console.log(err)
+				})
 			if (latitude !== null && longitude !== null) {
 				this.getLocation(latitude, longitude)
 			} else {
@@ -304,15 +308,17 @@
 					this.user.latitude = this.map.input.lat = this.map.center.lat = pos.coords.latitude
 					this.getLocation(JSON.parse(this.$ls.get('latitude')), JSON.parse(this.$ls.get('longitude')))
 				}, e => {
-					this.$http.get('//freegeoip.net/json/?callback=').then(response => {
-						this.$ls.set('latitude', response.body.latitude)
-						this.$ls.set('longitude', response.body.longitude)
-						this.user.longitude = this.map.input.lng = this.map.center.lng = response.body.longitude
-						this.user.latitude = this.map.input.lat = this.map.center.lat = response.body.latitude
-						this.getLocation(JSON.parse(this.$ls.get('latitude')), JSON.parse(this.$ls.get('longitude')))
-					}, response => {
-						console.error("Impossible de géolocaliser l'utilisateur.")
-					})
+					this.axios.get('//freegeoip.net/json/?callback=')
+						.then(response => {
+							this.$ls.set('latitude', response.data.latitude)
+							this.$ls.set('longitude', response.data.longitude)
+							this.user.longitude = this.map.input.lng = this.map.center.lng = response.data.longitude
+							this.user.latitude = this.map.input.lat = this.map.center.lat = response.data.latitude
+							this.getLocation(JSON.parse(this.$ls.get('latitude')), JSON.parse(this.$ls.get('longitude')))
+						})
+						.catch(err => {
+							console.log(err)
+						})
 				})
 			}
 		},
@@ -345,74 +351,70 @@
 				}
 			},
 			deletePic: function (e) {
-				this.$socket.emit('delete_pic', {
-					'user': this.store.state.user.ID,
-					'ID': e
-				})
+				if (this.user.pictures.length > 1) {
+					this.$socket.emit('delete_pic', {
+						'user': this.store.state.user.ID,
+						'ID': e
+					})
+				}
 			},
 			setLocation: function () {
-				this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?address=' + (this.map.input.address) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
-					this.user.latitude = response.body.results[0].geometry.location.lat
-					this.user.longitude = response.body.results[0].geometry.location.lng
-					this.map.center = this.map.markers[0].position
-					this.map.input.address = response.body.results[0].formatted_address
-					this.map.markers[0] = {
-						position: {
-							lat: response.body.results[0].geometry.location.lat,
-							lng: response.body.results[0].geometry.location.lng
-						},
-						visible: true
-					}
-					this.$ls.set('latitude', this.user.latitude)
-					this.$ls.set('longitude', this.user.longitude)
-					this.map.center = this.map.markers[0].position
-				}, response => {
-					console.error(response)
-				})
+				this.axios.get('https://maps.googleapis.com/maps/api/geocode/json?address=' + (this.map.input.address) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8')
+					.then(response => {
+						this.user.latitude = response.data.results[0].geometry.location.lat
+						this.user.longitude = response.data.results[0].geometry.location.lng
+						this.map.center = this.map.markers[0].position
+						this.map.input.address = response.data.results[0].formatted_address
+						this.map.markers[0] = {
+							position: {
+								lat: response.data.results[0].geometry.location.lat,
+								lng: response.data.results[0].geometry.location.lng
+							},
+							visible: true
+						}
+						this.$ls.set('latitude', this.user.latitude)
+						this.$ls.set('longitude', this.user.longitude)
+						this.map.center = this.map.markers[0].position
+					})
+					.catch(err => {
+						console.log(err)
+					})
 			},
 			getLocation: function (latitude, longitude) {
 				this.loading = true
-				this.$http.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + (Number(latitude) + ',' + Number(longitude)) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8').then(response => {
-					this.map.input.address = response.body.results[0].formatted_address
-					this.user.longitude = this.map.input.lng = this.map.center.lng = longitude
-					this.user.latitude = this.map.input.lat = this.map.center.lat = latitude
-					this.map.markers[0] = {
-						position: {
-							lat: this.map.input.lat,
-							lng: this.map.input.lng
+				this.axios.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + (Number(latitude) + ',' + Number(longitude)) + '&sensor=true&key=AIzaSyCfnDMO2EoO16mtlYuh6ceq2JbgGFzTEo8')
+					.then(response => {
+						this.map.input.address = response.data.results[0].formatted_address
+						this.user.longitude = this.map.input.lng = this.map.center.lng = longitude
+						this.user.latitude = this.map.input.lat = this.map.center.lat = latitude
+						this.map.markers[0] = {
+							position: {
+								lat: this.map.input.lat,
+								lng: this.map.input.lng
+							}
 						}
-					}
-					this.loading = false
-				}, response => {
-					console.error(response)
-				})
+						this.loading = false
+					})
 			},
 			checkList: function () {
 				this.user.tags = this.user.tags.filter(t => t.match('^[a-zA-Z0-9-_\\.]{1,20}$') !== null)
 			},
 			submit: function () {
 				let _this = this
-				this.$http.patch('http://localhost:8081/api/users/account', [this.user], {headers: {'Authorization': 'Basic ' + this.$ls.get('token')}}, {
-					progress (e) {
-						_this.$refs['submit'].$options.propsData['disabled'] = true
-						_this.$refs['submit'].$el.innerHTML = '<div class="progress-circular progress-circular--indeterminate primary--text" style="height: 32px; width: 32px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="25 25 50 50" style="transform: rotate(0deg);"><circle fill="transparent" cx="50" cy="50" r="20" stroke-width="4" stroke-dasharray="125.664" stroke-dashoffset="125.66370614359172px" class="progress-circular__overlay"></circle></svg><div class="progress-circular__info"></div></div>'
-					}
-				}).then(response => {
-					this.$refs['submit'].$el.innerHTML = 'Changer mes informations'
+				this.axios.patch('/users/account', [this.user], { headers: { 'Authorization': 'Bearer ' + this.$ls.get('token') } })
+					.then(response => {
+						this.$refs['submit'].$el.innerHTML = 'Changer mes informations'
 //					this.$ls.set('token', response.body.token, 60 * 60 * 1000 * 24)
 //					this.store.commit('DELETE_USER')
 //					this.store.commit('CREATE_USER', this.$jwt.decode(JSON.parse(this.$jwt.getToken()).value).user)
-					this.store.commit('NEW_ALERT', {type: response.body.type, message: response.body.message})
-					setTimeout(function () {
-						_this.store.commit('DISMISS')
-					}, 2000)
-				}, response => {
-					this.$refs['submit'].$el.innerHTML = 'S\'inscrire'
-					this.store.commit('NEW_ALERT', {type: 'error', message: 'Impossible de changer vos informations. Une erreur est survenue.'})
-					setTimeout(function () {
-						_this.store.commit('DISMISS')
-					}, 2000)
-				})
+						this.store.commit('NEW_ALERT', {type: response.body.type, message: response.body.message})
+						setTimeout(function () {
+							_this.store.commit('DISMISS')
+						}, 2000)
+					})
+					.catch(err => {
+						console.log(err)
+					})
 			}
 		},
 		computed: {

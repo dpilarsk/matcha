@@ -293,9 +293,13 @@ function updateMyUserAccount (req, res) {
 		if (response === undefined || response.length === 0 || response['affectedRows'] === 0) {
 			queryFailed()
 		} else {
-			req.body[0].password = hash
-			res.json({'status': 1, type: 'success', 'message': 'Your informations are update..', 'token': jwt.sign({user: req.body[0], exp: Math.floor(Date.now() / 1000) + ((60 * 60) * 24)}, 'demo')})
-			tool.suc(res, 'Informations successfully updated')
+			// req.body[0].password = hash
+			let newUser = req.body[0]
+			newUser.ID = user.ID
+			newUser.password = hash
+			delete newUser.passwordConfirm
+			res.json({'status': 1, type: 'success', 'message': 'Your informations are update.', 'token': jwt.sign({user: newUser, exp: Math.floor(Date.now() / 1000) + ((60 * 60) * 24)}, 'demo')})
+			// tool.suc(res, 'Informations successfully updated')
 			// TODO update server value for user and next rqt
 		}
 	}
@@ -304,7 +308,7 @@ function updateMyUserAccount (req, res) {
 			'UPDATE `user` ' +
 			'SET `first_name` = ?, `last_name` = ?, `password` = ?, `email` = ? ' +
 			'WHERE `username` = ?',
-			[req.body[0].first_name, req.body[0].last_name, hash, req.body[0].email, user.username], // TODO BODY not params
+			[req.body[0].first_name, req.body[0].last_name, hash, req.body[0].email, user.username],
 			querySuccess
 		).catch(err => {
 			queryFailed('Request failed:<br>' + err)
