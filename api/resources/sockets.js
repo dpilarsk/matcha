@@ -6,7 +6,7 @@ const socketIO = require('socket.io'),
 	message		=	require(path.join(__dirname, 'utils.js'))
 
 let queryPromise = tool.dbLink()
-
+// TODO check if `api/public/uploads` exist
 module.exports.listen = app => {
 	const io = socketIO.listen(app)
 
@@ -74,6 +74,7 @@ module.exports.listen = app => {
 		})
 		socket.on('delete_pic', data => {
 			function querySuccess () {
+				// TODO get path of pciture and use fs.unlinkSync to delete it from storage
 				console.log('Successfully deleted.')
 				socket.emit('delete_success', { id: picture_ID })
 			}
