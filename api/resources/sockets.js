@@ -10,7 +10,7 @@ let queryPromise = tool.dbLink()
 module.exports.listen = app => {
 	const io = socketIO.listen(app)
 
-	function getMimeType(header) {
+	function getMimeType (header) {
 		if (header === 'ffd8ffe0' || header === 'ffd8ffe1' ||
 		header === 'ffd8ffe2' || header === 'ffd8ffe3' || header === 'ffd8ffe8') {
 			return 'png'
@@ -107,6 +107,6 @@ module.exports.listen = app => {
 			// 	socket.leave(n)
 			console.log(socket.id + ' leave')
 			// })
-		})
+		}) // TODO when user logout, leave the room
 	})
 }
