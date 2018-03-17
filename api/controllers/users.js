@@ -364,21 +364,27 @@ function updateUserProfile (req, res) {
 		if (response === undefined || response.length === 0 || response['affectedRows'] === 0) {
 			tool.dbQuery(
 				'INSERT INTO `profile` (`age`, `gender`, `biography`, `sexual_orientation`, `latitude`, `longitude`, `range`, `user_ID`, `profil_picture`) ' +
-				'VALUES (?, ?, ?, ?, ?, ?, ?, ?, (SELECT ID FROM `picture` WHERE user_ID = ?))', // TODO profile picture to change TODO ON DUPPLICATE KEY UPDATE?
-				[param.age, param.gender, param.biography, param.sexual_orientation, Number(param.latitude), Number(param.longitude), param.range, user.ID, user.ID], // TODO replace req by param
+				'VALUES (?, ?, ?, ?, ?, ?, ?, ?, (SELECT ID FROM `picture` WHERE user_ID = ?))', // TODO ON DUPPLICATE KEY UPDATE?
+				[param.age, param.gender, param.biography, param.sexual_orientation, Number(param.latitude), Number(param.longitude), param.range, user.ID, user.ID],
 				createMissingTags
 			).catch(err => {
 				queryFailed('Request failed:<br>' + err)
 			})
 		} else {
-			console.log('UPDATE')
-			createMissingTags()
+			tool.dbQuery(
+				'UPDATE `profile` ' +
+				'SET `age` = ?, `gender` = ?, `biography` = ?, `sexual_orientation` = ?, `latitude` = ?, `longitude` = ?, `range` = ? ' +
+				'WHERE `user_ID` = ?',
+				[param.age, param.gender, param.biography, param.sexual_orientation, Number(param.latitude), Number(param.longitude), param.range, user.ID],
+				createMissingTags
+			).catch(err => {
+				queryFailed('Request failed:<br>' + err)
+			})
 		}
 	}
 	console.log(req.body)
 	let param = req.body[0]
 	if (!param || tool.checkTag(param.tags) || tool.checkAge(param.age) || tool.checkGender(param.gender) || tool.checkBio(param.biography) || tool.checkOrientationSexe(param.sexual_orientation)) { // TODO check longitude / latitude + check range
-		console.log('check failed', param.age)
 		return queryFailed('Wrong data sent')
 	}
 	queryPromise.then(() => {
