@@ -267,7 +267,7 @@ function getMyUserProfile (req, res) {
 		tool.dbQuery(
 			'SELECT * ' + // TODO replace * by specific fields
 			'FROM `user`' +
-			'INNER JOIN `profile` ON `profile`.`user_ID` = `user`.`ID` ' +
+			'INNER JOIN `profile` ON `profile`.`user_ID` = `user`.`ID` ' + // TODO get tags of the user
 			'WHERE `username` = ?',
 			[req.params.username],
 			querySuccess
@@ -378,6 +378,7 @@ function updateUserProfile (req, res) {
 	console.log(req.body)
 	let param = req.body[0]
 	if (!param || tool.checkTag(param.tags) || tool.checkAge(param.age) || tool.checkGender(param.gender) || tool.checkBio(param.biography) || tool.checkOrientationSexe(param.sexual_orientation)) { // TODO check longitude / latitude + check range
+		console.log('check failed', param.age)
 		return queryFailed('Wrong data sent')
 	}
 	queryPromise.then(() => {

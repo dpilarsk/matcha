@@ -404,10 +404,10 @@
 				this.axios.patch('/users/account', [this.user], { headers: { 'Authorization': 'Bearer ' + this.$ls.get('token') } })
 					.then(response => {
 						this.$refs['submit'].$el.innerHTML = 'Changer mes informations'
-//					this.$ls.set('token', response.body.token, 60 * 60 * 1000 * 24)
-//					this.store.commit('DELETE_USER')
-//					this.store.commit('CREATE_USER', this.$jwt.decode(JSON.parse(this.$jwt.getToken()).value).user)
-						this.store.commit('NEW_ALERT', {type: response.body.type, message: response.body.message})
+	//					this.$ls.set('token', response.body.token, 60 * 60 * 1000 * 24)
+	//					this.store.commit('DELETE_USER')
+	//					this.store.commit('CREATE_USER', this.$jwt.decode(JSON.parse(this.$jwt.getToken()).value).user)
+						this.store.commit('NEW_ALERT', {type: response.data.type, message: response.data.message})
 						setTimeout(function () {
 							_this.store.commit('DISMISS')
 						}, 2000)
@@ -415,6 +415,30 @@
 					.catch(err => {
 						console.log(err)
 					})
+			}
+		},
+		watch: {
+			photo_uploaded () {
+				if (this.photo_uploaded) {
+					this.axios.get('/users/' + this.store.state.user.username)
+						.then(response => {
+							if (response.data.status === 1) {
+								response.data.message = response.data.message[0]
+								this.user.age = String(response.data.message.age)
+								this.user.gender = response.data.message.gender
+								this.user.biography = response.data.message.biography
+								this.user.sexual_orientation = response.data.message.sexual_orientation
+								this.user.latitude = response.data.message.latitude
+								this.user.longitude = response.data.message.longitude
+								this.user.range = response.data.message.range
+							} else {
+								console.log('dont exist')
+							}
+						})
+						.catch(err => {
+							console.log(err)
+						})
+				}
 			}
 		},
 		computed: {
