@@ -265,9 +265,11 @@ function getMyUserProfile (req, res) {
 	}
 	queryPromise.then(() => {
 		tool.dbQuery(
-			'SELECT * ' + // TODO replace * by specific fields
+			'SELECT `user`.*, `profile`.*, GROUP_CONCAT(`tag`.`content`) as `tags` ' +
 			'FROM `user`' +
-			'INNER JOIN `profile` ON `profile`.`user_ID` = `user`.`ID` ' + // TODO get tags of the user
+			'INNER JOIN `profile` ON `profile`.`user_ID` = `user`.`ID` ' +
+			'INNER JOIN `tag_to_user` ON `tag_to_user`.`user_ID` = `user`.`ID` ' +
+			'INNER JOIN `tag` ON `tag`.`ID` = `tag_to_user`.`tag_ID` ' +
 			'WHERE `username` = ?',
 			[req.params.username],
 			querySuccess
@@ -376,7 +378,7 @@ function updateUserProfile (req, res) {
 				'SET `age` = ?, `gender` = ?, `biography` = ?, `sexual_orientation` = ?, `latitude` = ?, `longitude` = ?, `range` = ? ' +
 				'WHERE `user_ID` = ?',
 				[param.age, param.gender, param.biography, param.sexual_orientation, Number(param.latitude), Number(param.longitude), param.range, user.ID],
-				createMissingTags
+				createMissingTags // TODO also delete tag from tag_to_user if delete by user
 			).catch(err => {
 				queryFailed('Request failed:<br>' + err)
 			})
@@ -431,6 +433,31 @@ function deleteMyAccount (req, res) {
 	})
 }
 
+function getTags (req, res) {
+	function queryFailed () {
+		tool.err(res, 'An error occured... No tags found')
+	}
+	function querySuccess (response) {
+		if (response === undefined || response.length === 0) {
+			queryFailed()
+		} else {
+			tool.suc(res, response)
+		}
+	}
+	queryPromise.then(() => {
+		tool.dbQuery(
+			'SELECT * FROM `tag`',
+			null,
+			querySuccess
+		).catch(err => {
+			queryFailed('Request failed:<br>' + err)
+		})
+	}).catch(err => {
+		tool.dispError(err)
+		queryFailed()
+	})
+}
+
 module.exports = {
 	index: getUser,
 	create: insertNewUser,
@@ -438,5 +465,6 @@ module.exports = {
 	read: getMyUserProfile,
 	update: updateMyUserAccount,
 	updateAccount: updateUserProfile,
+	getTags: getTags,
 	delete: deleteMyAccount
 }

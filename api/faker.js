@@ -7,7 +7,7 @@ function createFalseUser () {
 		faker.internet.userName().slice(0, 20),									// username
 		faker.name.firstName(),													// First Name
 		faker.name.lastName(),													// Last Name
-		bcrypt.hashSync('test', 2),												// password
+		bcrypt.hashSync('test', 2),												// password TODO use a password that we can use in front because `test` fail with regex verification
 		faker.internet.email(),													// email
 		Math.random() > 0.5														// Status
 	]

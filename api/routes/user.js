@@ -9,6 +9,9 @@ router.use((req, res, next) => {
 	next()
 })
 
+router.route('/tags')
+	.get(controller.getTags)
+
 router.route('/users')
 	.get(controller.index)
 	.post(controller.create)
@@ -20,6 +23,7 @@ router.route('/users/informations')
 	.patch(controller.update)
 
 router.route('/users/account')
+	// .get(controller.getAccount)
 	.patch(controller.updateAccount)
 
 router.route('/users/:username')
