@@ -235,7 +235,7 @@
 					age: null,
 					gender: null,
 					biography: null,
-					sexual_orientation: null,
+					sexual_orientation: 'bisexual',
 					latitude: null,
 					profile: {},
 					longitude: null,
