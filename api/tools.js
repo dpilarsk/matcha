@@ -115,11 +115,16 @@ function checkTag (array) {
 	if (array === undefined || array.length === 0) {
 		return 1
 	}
+	let tagOk = 0
 	array.forEach(function (entry) {
-		if (checkStrRegex(entry, '^[a-zA-Z0-9-_\\.]{1,20}$')) {
+		if (checkStrRegex(entry, '^[a-zA-Z0-9_\\.-]{1,20}$')) {
+			tagOk = 1
 			return 1
 		}
 	})
+	if (tagOk !== 0) {
+		return 1
+	}
 	return 0
 }
 

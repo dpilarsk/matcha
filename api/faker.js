@@ -1,4 +1,5 @@
 const faker			=	require('faker'),
+	tool			=	require('./tools.js'),
 	bcrypt			=	require('bcrypt'),
 	N_FAKE_DATA		=	1000
 
@@ -57,10 +58,13 @@ function createFalseProfile (userID) {
 }
 
 function createFalseTag () {
-	return [
-		faker.random.word()														// Random tag
-	]
+	let tag = faker.random.word()												// Random tag
+	if (!tool.checkTag([tag])) {
+		return [ tag ]
+	}
+	return [ 'Ztag' ]
 }
+
 function createFalseTagToUser () {
 	return [
 		Math.floor(Math.random() * (N_FAKE_DATA - 1) + 1),						// user_ID in [ 1 - 1000 ]
